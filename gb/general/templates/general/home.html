@@ -1,0 +1,10 @@
+{% extends 'general/primary.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div>Authenticated!</div>
+    {% else %}
+        <div>
+            Welcome to Group Buy Organizer!
+        </div>
+    {% endif %}
+{% endblock %}
