@@ -1,7 +1,8 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import HttpResponseRedirect, redirect, render
 
-# Create your views here.
+@login_required
 def toggle_night_mode(request):
     request.user.toggle_night_mode()
     if request.user.night_mode_enabled:
