@@ -8,6 +8,7 @@
         <title>Group Buy Organizer</title>
     {% endif %}
     {% load static %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'general/img/rocket.svg' %}"/>
     {% if not user.is_authenticated %}
         <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/flatly/bootstrap.min.css" rel="stylesheet">
     {% else %}
@@ -43,11 +44,6 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'general-about' %}">About</a>
             </li>
-            {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'general-about' %}">My Group Buys</a>
-                </li>
-            {% endif %}
         </ul>
         {% if user.is_authenticated %}
             <ul class="navbar-nav">

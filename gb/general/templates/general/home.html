@@ -1,10 +1,23 @@
 {% extends 'general/primary.html' %}
 {% block content %}
     {% if user.is_authenticated %}
-        <div>Authenticated!</div>
+        {% if events %}
+            {% for event in events %}
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-light text-center" role="alert">
+                There are no group buy events available to you.  Either <a href="{% url 'events-create' %}">create one
+                yourself</a>, or have someone invite you to theirs with your username.
+            </div>
+        {% endif %}
     {% else %}
-        <div>
-            Welcome to Group Buy Organizer!
+        <div class="alert alert-light text-center" role="alert">
+            Welcome to Group Buy Organizer!  Please log in or register to use the application, or click "About" or
+            "Updates" to learn more.
+        </div>
+        <div class="mb-5 mt-5 text-center">
+            <p>Placeholder until video made</p>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/Mg-Nksc7Oh0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     {% endif %}
 {% endblock %}

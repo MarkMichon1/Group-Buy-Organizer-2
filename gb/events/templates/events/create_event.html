@@ -1,0 +1,13 @@
+{% extends 'general/primary.html' %}
+{% block content %}
+    <form>
+        <div class="form-group">
+            <label for="title">Event Title</label>
+            <input type="text" class="form-control" id="title" placeholder="Big Fireworks Spring {% now "Y"%} Group Buy">
+        </div>
+        <div class="form-group">
+            <label for="short_description">Short Description (optional)</label>
+            <input type="text" class="form-control" id="short_description" placeholder="Looking forward to another fun year!  Deadline for orders: 5/31/{% now "Y"%}">
+        </div>
+    </form>
+{% endblock %}

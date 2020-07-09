@@ -10,3 +10,5 @@ def toggle_night_mode(request):
     else:
         messages.info(request, 'Night mode disabled!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+#todo integrate captchas into registration, AND add into sample gb event at trigger

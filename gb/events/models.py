@@ -18,8 +18,8 @@ class Item(models.Model):
 
 
 class Event(models.Model):
-    invite_key = models.UUIDField(default=uuid.uuid4)
-    name = models.CharField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
     is_locked = models.BooleanField(default=False)
     is_closed = models.BooleanField(default=False)
