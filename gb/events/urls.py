@@ -3,8 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.events, name='events-events'),
-    path('create', views.create_event, name='events-create'),
+    path('create/', views.create_event, name='events-create'),
     path('<uuid:id>/', views.event, name='events-event'),
     path('<uuid:id>/edit/', views.edit_event, name='events-edit'),
     path('<uuid:id>/delete/', views.delete_event, name='events-delete'),

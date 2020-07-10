@@ -5,19 +5,30 @@ from django.shortcuts import redirect, render
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from events.forms import EventCreateForm
-from events.models import Event
-
-
-@login_required
-def events(request):
-    context = {}
-    return render(request, 'events/events.html', context=context)
+from events.models import Event, EventMembership
 
 
 @login_required
 def create_event(request):
-    context = {}
-    return render(request, 'events/create_event.html', context=context)
+    if request.method == 'POST':
+        form = EventCreateForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            event = Event(name=title, description=description, created_by=request.user)
+            event.save()
+            membership = EventMembership(user=request.user, event=event, is_organizer=True,
+                                         is_staff=request.user.is_staff)
+            membership.save()
+            messages.success(request, f"Event successfully created!  Click the Event Settings button in the organizer"
+                                      f"toolbar to add more members.") #todo
+            return redirect('general-home')
+    else:
+        context = {
+            'form' : EventCreateForm(),
+            'title' : 'New Event'
+                   }
+        return render(request, 'events/create_event.html', context=context)
 
 
 @login_required
