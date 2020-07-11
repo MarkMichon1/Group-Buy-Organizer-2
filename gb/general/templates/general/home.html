@@ -1,8 +1,75 @@
 {% extends 'general/primary.html' %}
+{% load static %}
 {% block content %}
     {% if user.is_authenticated %}
-        {% if events %}
-            {% for event in events %}
+        <div class="container text-center">
+            <a class="btn btn-success mb-5 mt-5" href="{% url 'events-create' %}" role="button">Create New Event</a>
+        </div>
+        {% if memberships %}
+            {% if memberships|length == 1 %}
+                <h1>1 Event Available:</h1>
+            {% else %}
+                <h1>{{ memberships|length }} Events Available:</h1>
+            {% endif %}
+            {% for membership in memberships %}
+                {% if not membership.event.is_locked %}
+                    <div class="card mt-5 border border-success">
+                {% elif membership.event.is_locked and not membership.event.is_closed %}
+                    <div class="card mt-5 border border-warning">
+                {% else %}
+                    <div class="card mt-5 border border-secondary">
+                {% endif %}
+            <div class="card-header">
+                {% if not membership.event.is_locked and not membership.event.is_closed %}
+                    <span class="badge badge-success float-left m-2">Open</span>
+                {% elif membership.event.is_closed %}
+                    <span class="badge badge-secondary float-left m-2">Complete</span>
+                {% elif membership.event.is_locked %}
+                    <span class="badge badge-warning float-left m-2">Locked - Pending Completion</span>
+                {% endif %}
+                {% if membership.is_organizer %}
+                    <a class="btn btn-primary float-right m-1" href="#" role="button">Edit Event</a>
+                {% endif %}
+                {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
+                    <a class="btn btn-info float-right m-1" href="#" role="button">User Breakdown</a>
+                    <a class="btn btn-info float-right m-1" href="#" role="button">Order Summary</a>
+                {% endif %}
+                <a class="btn btn-success float-right m-1" href="#" role="button">My Order</a>
+                <h3 class="font-weight-bold mb-3">
+                    <a href="{% url 'events-event' membership.event.id %}">{{ membership.event.name }}</a>
+                    {% if membership.is_organizer %}
+                        <img src="{% static "events/img/crown.svg" %}" width="30" height="30" class="d-inline-block align-top" title="You're an organizer of this event." alt="" loading="lazy">
+                    {% endif %}
+                    {% if membership.check_if_active_buys_or_commits %}
+                        <img src="{% static "events/img/box.svg" %}" width="30" height="30" class="d-inline-block align-top" title="You are active in this event." alt="" loading="lazy">
+                    {% endif %}
+                </h3>
+                <h6 class="card-subtitle mt-3 mb-4">{{ membership.event.description }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Created {{ membership.event.date_created|date:'M d, Y'}} by {{ membership.event.created_by.username }}</h6>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Partipicants</th>
+                        <th scope="col">Active Case Splits</th>
+                        <th scope="col">Total Cases Reserved</th>
+                        <th scope="col">Total Case Cost</th>
+                        <th scope="col">Added Charges</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ membership.event.get_active_participants }}</td>
+                        <td>{{ membership.event.get_active_case_splits }}</td>
+                        <td>{{ membership.event.get_total_cases }}</td>
+                        <td>{{ membership.event.get_event_total }}</td>
+                        <td>${{ membership.event.extra_charges }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
             {% endfor %}
         {% else %}
             <div class="alert alert-light text-center" role="alert">

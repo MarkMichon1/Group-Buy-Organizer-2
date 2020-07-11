@@ -1,0 +1,14 @@
+{% extends 'general/primary.html' %}
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <form method ='POST'>
+                {% csrf_token %}
+                <div class="form-group">
+                    <button class="btn btn-outline-danger" type="submit">Confirm Deletion</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'general-updates' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,4 +1,44 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    updates
+    {% if user.is_staff or user.is_superuser %}
+        <div class="container text-center">
+            <a class="btn btn-success mb-5 mt-5" href="{% url 'general-updates-create' %}" role="button">Create New Update</a>
+        </div>
+    {% endif %}
+    {% if blog_posts %}
+        {% for blog_post in blog_posts %}
+            <div class="container mb-5 mt-5">
+                <h1>
+                    {{ blog_post.title }}
+                    {% if user.is_staff or user.is_superuser %}
+                        <a class="btn btn-secondary" href="{% url 'general-updates-update' blog_post.id %}" role="button">Update Update</a>
+                        <a class="btn btn-danger" href="{% url 'general-updates-delete' blog_post.id %}" role="button">Delete Update</a>
+                    {% endif %}
+                </h1>
+                <h6 class="text-muted mt-2 mb-2">Created by {{ blog_post.created_by }} on {{ blog_post.date_created }}</h6>
+                {{ blog_post.content|linebreaks}}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No updates (yet), standby for one from an admin shortly!
+        </div>
+    {% endif %}
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    {% endif %}
 {% endblock %}

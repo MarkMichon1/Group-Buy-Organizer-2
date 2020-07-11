@@ -6,7 +6,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from events.forms import EventCreateForm
 from events.models import Event, EventMembership
-
+from events.utilities import event_auth_checkpoint
 
 @login_required
 def create_event(request):
@@ -30,11 +30,18 @@ def create_event(request):
                    }
         return render(request, 'events/create_event.html', context=context)
 
-
 @login_required
-def event(request):
-    context = {}
+def event(request, pk):
+    event = Event.objects.get(pk=pk)
+    context = {'title' : event.name}
     return render(request, 'events/event.html', context=context)
+# class EventDetailView(LoginRequiredMixin, DetailView):
+#     model = Event
+#     context_object_name = 'event'
+#     template_name = 'events/event.html'
+#     extra_context = {
+#         'title': model.field_names
+#     }
 
 
 @login_required
