@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect, render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from events.forms import EventCreateForm
@@ -32,16 +33,10 @@ def create_event(request):
 
 @login_required
 def event(request, pk):
-    event = Event.objects.get(pk=pk)
+    event, membership = event_auth_checkpoint(pk, request)
+
     context = {'title' : event.name}
     return render(request, 'events/event.html', context=context)
-# class EventDetailView(LoginRequiredMixin, DetailView):
-#     model = Event
-#     context_object_name = 'event'
-#     template_name = 'events/event.html'
-#     extra_context = {
-#         'title': model.field_names
-#     }
 
 
 @login_required

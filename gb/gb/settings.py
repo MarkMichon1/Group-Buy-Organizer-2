@@ -10,17 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# SECURITY
-SECRET_KEY = 'ei2o%k_87hc0-k-8j#xijqw*o%k^bz#$$%5^cv3w@raa6t0v36' #todo configify in production
-DEBUG = True #todo toggle
+# SECURITY todo revisit at deployment
+SECRET_KEY = 'ei2o%k_87hc0-k-8j#xijqw*o%k^bz#$$%5^cv3w@raa6t0v36'
+DEBUG = True
 ALLOWED_HOSTS = []
-
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
 
 # Application definition
 INSTALLED_APPS = [

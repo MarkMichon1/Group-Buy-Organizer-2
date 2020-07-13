@@ -13,17 +13,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
-
-
-class Item(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    packing = models.SmallIntegerField()
-    event = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='items')
-
-    def __str__(self):
-        return self.name
+        ordering = ('name',)
 
 
 class Event(models.Model):
@@ -61,6 +51,17 @@ class Event(models.Model):
             if case_split.is_complete == True:
                 total_count += 1
         return total_count
+
+
+class Item(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    packing = models.SmallIntegerField()
+    event = models.ForeignKey(Event, null=True, on_delete=models.CASCADE, related_name='items')
+
+    def __str__(self):
+        return self.name
 
 
 class EventMembership(models.Model):
@@ -111,3 +112,24 @@ class CasePieceCommit(models.Model):
     def __str__(self):
         return f'(Commit) {self.event.name} -> {self.case_split.item.name} -> {self.user.username} -> ' \
                f'{self.quantity}/{self.case_split.item.packing}'
+
+
+class EventComment(models.Model):
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField()
+
+
+class ItemComment(models.Model):
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    date_added = models.DateTimeField(auto_now_add=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_comments')
+    comment = models.TextField()
+
+
+class ItemYoutubeVideo(models.Model):
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    date_added = models.DateTimeField(auto_now_add=True)
+    url = models.CharField(max_length=150)

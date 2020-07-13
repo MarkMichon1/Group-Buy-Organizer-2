@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import HttpResponseRedirect, redirect, render
+from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
 
 from events.models import Event, EventMembership
 from users.forms import UserRegisterForm
+from users.models import User
 
 
 def register(request):
@@ -13,7 +14,7 @@ def register(request):
             user = form.save()
 
             # Adding user to sample event.
-            event = Event.objects.get(id='55758f644ac54bdf8beac031b4934c61')
+            event = Event.objects.get(id='0c4de13a5e37410b86a41fc82eac3d44')
             membership = EventMembership(user=user, event=event)
             membership.save()
             user.is_active = False
@@ -22,7 +23,7 @@ def register(request):
             username = user.username
             messages.success(request, f'{username} created!  An activation email has been sent to '
                                       f"{user.email}.")
-            return redirect('login')
+            return redirect('general-home')
     else:
         form = UserRegisterForm()
     context = {
@@ -41,4 +42,17 @@ def toggle_night_mode(request):
         messages.info(request, 'Night mode disabled!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-#todo integrate captchas into registration, AND add into sample gb event at trigger
+#todo integrate captchas into registration
+
+
+def activate_account(request, pk):
+    print(f'pk": {pk}')
+    account = get_object_or_404(User, pk=pk)
+    if account.is_active:
+        messages.success(request, 'Your account is already activated!')
+        return redirect('general-home')
+    else:
+        account.is_active = True
+        account.save()
+        messages.success(request, 'Account activated!  You may now log in.')
+        return redirect('login')
