@@ -2,14 +2,42 @@
 {% load static %}
 {% block content %}
     {% if user.is_authenticated %}
+        {% if user.display_explanations %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Your Events</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                       Welcome to Group Buy Organizer!  Quickly organize group buys, keep track of individual and group totals, and manage payments.  These instructions are to quickly get you up to speed with using the app.
+                    </p>
+                    <p class="card-text">
+                        This is the homepage of the app.  Here you'll see group buy events that are available to you.  For your privacy and others, only events that you were invited to will you be able to access.  If you're looking to join an active event, contact one of the organizers and give them your username.  Once they add you, you'll have immediate access to the event.  If you're looking to organize your own event, click the <span class="text-success">Create New Event</span> button below.
+                    </p>
+                    <p class="card-text">
+                        By default, you're added to a sample event with dummy users and data.  Check it out to get a quick grasp on how everything works.  The event is open so you're able to freely interact with it.  Add items, reserve cases, and try out case splits.  More about this is explained there.
+                    </p>
+                    <p class="card-text">
+                        The groups can be in three different states:
+                    <ul class="list-group">
+                    <li class="list-group-item"><span class="badge badge-success">Open</span> - You can actively add items, and make changes to your order.</li>
+                    <li class="list-group-item"><span class="badge badge-warning">Locked - Pending Completion</span> - The event is locked by the organizers.  All items and pieces in your order are frozen and can't be edited.  May be changed by the organizer back to "open."</li>
+                    <li class="list-group-item"><span class="badge badge-secondary">Complete</span> - The same as locked, except signalling the event has concluded.  Once complete, the event cannot be re-opened.</li>
+                </ul>
+                    </p>
+                    <hr/>
+                    <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+                </div>
+            </div>
+        {% endif %}
         <div class="container text-center">
             <a class="btn btn-success mb-5 mt-5" href="{% url 'events-create' %}" role="button">Create New Event</a>
         </div>
         {% if memberships %}
             {% if memberships|length == 1 %}
-                <h1>1 Event Available:</h1>
+                <h3>1 Event Available:</h3>
             {% else %}
-                <h1>{{ memberships|length }} Events Available:</h1>
+                <h3>{{ memberships|length }} Events Available:</h3>
             {% endif %}
             {% for membership in memberships %}
                 {% if not membership.event.is_locked %}

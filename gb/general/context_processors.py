@@ -5,3 +5,4 @@
 #     return {
 #         'new_hits' : new_hits
 #     }
+#todo probably unnecessary

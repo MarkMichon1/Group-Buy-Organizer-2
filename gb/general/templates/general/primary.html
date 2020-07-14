@@ -48,9 +48,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'general-donate' %}">Donate</a>
             </li>
-{#            <li class="nav-item">#}
-{#                <a class="nav-link" href="#">Statistics</a>#}
-{#            </li>#}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'general-statistics' %}">Statistics</a>
+            </li>
         </ul>
         {% if user.is_authenticated %}
             <ul class="navbar-nav">
@@ -59,12 +59,18 @@
                         Welcome, {{ user.username|title }}
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Profile Settings</a>
                         {% if user.night_mode_enabled %}
                             <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Disable Night Mode</a>
                         {% else %}
                             <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Enable Night Mode</a>
                         {% endif %}
+                        {% if user.display_explanations %}
+                            <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Disable Explanations</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Enable Explanations</a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Profile Settings</a>
                     </div>
                 </li>
                 <li class="nav-item">

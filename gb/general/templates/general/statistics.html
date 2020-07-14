@@ -1,0 +1,30 @@
+{% extends 'general/primary.html' %}
+{% block content %}
+    {% load humanize %}
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Registered Users
+            <span class="badge badge-primary badge-pill">{{ registered_users|intcomma }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Total Event Memberships
+            <span class="badge badge-primary badge-pill">{{ total_event_memberships|intcomma }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Open Events
+            <span class="badge badge-primary badge-pill">{{ open_events|intcomma }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Total Events
+            <span class="badge badge-primary badge-pill">{{ total_events|intcomma }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>Total Cases Reserved<div class="text-muted">(updated when event ends)</div></div>
+            <span class="badge badge-primary badge-pill">{{ total_cases|intcomma }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Total Page Views
+            <span class="badge badge-primary badge-pill">{{ total_page_views|intcomma }}</span>
+        </li>
+    </ul>
+{% endblock %}

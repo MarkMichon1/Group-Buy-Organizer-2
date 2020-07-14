@@ -42,6 +42,16 @@ def toggle_night_mode(request):
         messages.info(request, 'Night mode disabled!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
+@login_required
+def toggle_explanations(request):
+    request.user.toggle_explanations()
+    if request.user.display_explanations:
+        messages.info(request, 'How-to explanations enabled!')
+    else:
+        messages.info(request, 'How-to explanations disabled!')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 #todo integrate captchas into registration
 
 

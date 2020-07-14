@@ -1,4 +1,48 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    <div>leave event button, panel for both organizers and non</div>
+    {% load static %}
+    {% if user.display_explanations %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Event Page</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        This is the event page,
+                    </p>
+                    <hr/>
+                    <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+                </div>
+            </div>
+    {% endif %}
+    <div class="card mb-5 mt-5">
+        <div class="card-header">
+            <h3 class="card-title">Organizer Panel</h3>
+        </div>
+        <div class="card-body">
+            <a class="btn btn-primary m-1" href="#" role="button">Manage Users</a>
+            <a class="btn btn-primary m-1" href="#" role="button">Manage Payments</a>
+            <a class="btn btn-secondary m-1" href="#" role="button">Edit Event</a>
+            <hr/>
+            <p class="card-text text-muted">This is only visible to event organizers.</p>
+        </div>
+    </div>
+    <div class="card mb-5 mt-5">
+        <div class="card-header">
+            <h3 class="card-title">Event Panel</h3>
+        </div>
+        <div class="card-body">
+            <a class="btn btn-primary m-1" href="#" role="button"><img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" alt="" loading="lazy"> Event Chat</a>
+            <a class="btn btn-success m-1" href="#" role="button">My Order</a>
+            <a class="btn btn-info m-1" href="#" role="button">Order Summary</a>
+            <a class="btn btn-info m-1" href="#" role="button">User Breakdown</a>
+            <a class="btn btn-warning m-1" href="#" role="button">Leave Event</a>
+
+        </div>
+    </div>
+    {% if event.is_closed %}
+        closed
+    {% elif event.is_locked %}
+        locked
+    {% endif %}
 {% endblock content %}

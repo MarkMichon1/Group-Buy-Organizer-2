@@ -1,4 +1,17 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    edit event placeholder
+    {% if user.display_explanations %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Event Settings</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        placeholder
+                    </p>
+                    <hr/>
+                    <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+                </div>
+            </div>
+    {% endif %}
 {% endblock %}

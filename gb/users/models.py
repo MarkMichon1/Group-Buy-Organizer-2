@@ -6,6 +6,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     night_mode_enabled = models.BooleanField(default=False, blank=False)
     display_explanations = models.BooleanField(default=True)
+    #todo- timezones?
 
     def __str__(self):
         return self.username
@@ -15,6 +16,10 @@ class User(AbstractUser):
 
     def toggle_night_mode(self):
         self.night_mode_enabled = not self.night_mode_enabled
+        self.save()
+
+    def toggle_explanations(self):
+        self.display_explanations = not self.display_explanations
         self.save()
 
     def send_event_status_email(self, status):

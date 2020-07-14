@@ -7,8 +7,10 @@ from general.models import Instance
 from general.utilities import app_db_initialization
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
+from events.models import Event, EventMembership
 from general.mixins import AdminStaffRequiredMixin
 from general.models import BlogPost
+from users.models import User
 
 
 def home(request):
@@ -17,8 +19,15 @@ def home(request):
         memberships = EventMembership.objects.filter(user=request.user).order_by('-date_joined')
     except:
         pass
+
+    title = None
+    title_h1_override = True
+    if request.user.is_authenticated:
+        title = 'Your Events'
+        title_h1_override = False
     context = {
-        'title_h1_override': True,
+        'title': title,
+        'title_h1_override' : title_h1_override,
         'memberships' : memberships
     }
 
@@ -30,6 +39,28 @@ def about(request):
         'title' : 'About'
     }
     return render(request, 'general/about.html', context=context)
+
+
+def statistics(request):
+    instance = Instance.objects.get(pk=1)
+
+    registered_users = User.objects.filter(is_active=True).count()
+    total_event_memberships = EventMembership.objects.count()
+    open_events = Event.objects.filter(is_locked=False).count()
+    total_events = Event.objects.count()
+    total_cases = instance.total_cases_reserved
+    total_page_views = instance.total_page_views
+
+    context = {
+        'title' : 'Statistics',
+        'registered_users' : registered_users,
+        'total_event_memberships': total_event_memberships,
+        'open_events': open_events,
+        'total_events': total_events,
+        'total_cases': total_cases,
+        'total_page_views': total_page_views,
+    }
+    return render(request, 'general/statistics.html', context=context)
 
 
 class BlogCreateView(AdminStaffRequiredMixin, CreateView):
