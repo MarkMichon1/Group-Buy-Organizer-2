@@ -12,13 +12,26 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import json
 import os
+from django.core.exceptions import ImproperlyConfigured
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
+
+with open(os.path.join(BASE_DIR, 'config.json')) as secrets_file:
+    secrets = json.load(secrets_file)
+
+def get_secret(setting, secrets=secrets):
+    """Get secret setting or fail with ImproperlyConfigured"""
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ImproperlyConfigured(f"Set the {setting} setting")
 
 
 # SECURITY todo revisit at deployment
-SECRET_KEY = 'ei2o%k_87hc0-k-8j#xijqw*o%k^bz#$$%5^cv3w@raa6t0v36'
+SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = []
 # CSRF_COOKIE_SECURE = True
@@ -32,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -48,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'general.middleware.view_count_middleware' #IMPORTANT- may have to be commented out until Instance is initialized.
 ]
 
 ROOT_URLCONF = 'gb.urls'
@@ -74,8 +89,12 @@ WSGI_APPLICATION = 'gb.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': get_secret('DB_ENGINE'),
+        'NAME': get_secret('DB_NAME'),
+        'USER': get_secret('DB_USER'),
+        'PASSWORD': get_secret('DB_PASSWORD'),
+        'HOST': get_secret('DB_HOST'),
+        'PORT': get_secret('DB_PORT')
     }
 }
 
@@ -118,10 +137,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'in-config@gmail.com'
-EMAIL_HOST_PASSWORD = 'password in config'
+EMAIL_HOST_USER = get_secret('SECRET_KEY')
+EMAIL_HOST_PASSWORD = get_secret('SECRET_KEY')
 
 # Off Site Analytics
 GOOGLE_ANALYTICS = {
-    'google_analytics_id': 'add in config json',
+    'google_analytics_id': get_secret('SECRET_KEY'),
 }
