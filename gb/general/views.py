@@ -65,7 +65,7 @@ def statistics(request):
 
 class BlogCreateView(AdminStaffRequiredMixin, CreateView):
     model = BlogPost
-    template_name = 'general/blog_create_update.html'
+    template_name = 'general/object_create_update.html'
     fields = ['title', 'content']
     success_url = '/updates'
     extra_context = {
@@ -98,7 +98,7 @@ class BlogListView(ListView):
 
 class BlogUpdateView(AdminStaffRequiredMixin, UpdateView):
     model = BlogPost
-    template_name = 'general/blog_create_update.html'
+    template_name = 'general/object_create_update.html'
     fields = ['title', 'content']
     success_url = '/updates'
     extra_context = {

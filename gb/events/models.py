@@ -25,11 +25,11 @@ class Event(models.Model):
     is_closed = models.BooleanField(default=False)
     users_can_see_master_overview = models.BooleanField(default=True)
     extra_charges = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='created_events')
     members = models.ManyToManyField(User, through='EventMembership')
 
     def __str__(self):
-        return self.name
+        return f'{self.name} - {self.id}'
 
     def get_active_participants(self):
         return EventMembership.objects.filter(event=self.id).count()
@@ -52,16 +52,17 @@ class Event(models.Model):
                 total_count += 1
         return total_count
 
+    def get_total_comments(self):
+        return self.comments.count()
 
-class Item(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    packing = models.SmallIntegerField()
-    event = models.ForeignKey(Event, null=True, on_delete=models.CASCADE, related_name='items')
+    def generate_event_items(self):
+        pass
 
-    def __str__(self):
-        return self.name
+    def generate_order_summary(self):
+        pass
+
+    def generate_user_breakdown(self):
+        pass
 
 
 class EventMembership(models.Model):
@@ -77,6 +78,22 @@ class EventMembership(models.Model):
 
     def check_if_active_buys_or_commits(self):
         return self.case_buys.count() > 1 or self.split_commits.count() > 1
+
+
+class Item(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    added_by = models.ForeignKey(EventMembership, null=True, on_delete=models.SET_NULL, related_name='created_items')
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    packing = models.SmallIntegerField()
+    event = models.ForeignKey(Event, null=True, on_delete=models.CASCADE, related_name='items')
+    category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, related_name='items')
+
+    def __str__(self):
+        return f'{self.category.name} -> {self.name}'
+
+    class Meta:
+        ordering = ('category', 'name')
 
 
 class CaseBuy(models.Model):
@@ -116,9 +133,12 @@ class CasePieceCommit(models.Model):
 
 class EventComment(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')
     date_added = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
+
+    class Meta:
+        ordering = ('date_added',)
 
 
 class ItemComment(models.Model):
@@ -126,10 +146,10 @@ class ItemComment(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_comments')
-    comment = models.TextField()
+    comment = models.TextField()#todo ordering
 
 
 class ItemYoutubeVideo(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
     date_added = models.DateTimeField(auto_now_add=True)
-    url = models.CharField(max_length=150)
+    url = models.CharField(max_length=150) #todo ordering

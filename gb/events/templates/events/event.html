@@ -8,14 +8,38 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        This is the event page,
+                        This is the main page for events, and works as an interactive price sheet.  Here you can see items that are available, or you can add your own if you don't see up yet.
+                    </p>
+                    <p class="card-text">
+                        The event starts with no items, and you add them from your own price sheet if you'd like to reserve cases of them, or participate in a case split.  Once an item is added, anyone else can interact with it.  Click the name of the item and that will take you to the ordering page for it.
+                    </p>
+                    <p class="card-text">
+                        The <span class="font-weight-bold">Event Panel</span>  contains order information as well as some other stuff.  We'll briefly go over each of them:
+                    <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="font-weight-bold">Event Chat</span> - This is where you can read messages from all other partipants in the event, as well as post your own.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="font-weight-bold">My Order</span> - This is your total sheet, outlining the quantity and total of reserved cases and reserved items from case splits (which will be explained on the item page).
+                    </li>
+                    <li class="list-group-item">
+                        <span class="font-weight-bold">Order Summary</span> - This is the master order sheet for the entire event.  It lists each of the items with reserved cases, their subtotals, and the event total.  Note that organizers can optionally restrict this view.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="font-weight-bold">User Breakdown</span> - This is similar to the order summary, except it goes over each item, displaying which members have cases of it, and if there were any case splits, how case pieces are allocated.  Like the Order Summary, this view can also be restricted.
+                    </li>
+                    <li class="list-group-item">
+                        <span class="font-weight-bold">Leave Event</span> - This will remove you from the group and remove all of your case buys and case splits.  Please be aware you'll no longer have any access to the event, and the only way you can rejoin is if an event organizer adds you again!
+                    </li>
+                </ul>
                     </p>
                     <hr/>
                     <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
                 </div>
             </div>
     {% endif %}
-    <div class="card mb-5 mt-5">
+    {% if membership.is_organizer %}
+        <div class="card mb-5 mt-5">
         <div class="card-header">
             <h3 class="card-title">Organizer Panel</h3>
         </div>
@@ -27,12 +51,26 @@
             <p class="card-text text-muted">This is only visible to event organizers.</p>
         </div>
     </div>
+    {% endif %}
+    {% if event.is_closed %}
+        closed
+    {% elif event.is_locked %}
+        locked
+    {% endif %}
+
     <div class="card mb-5 mt-5">
         <div class="card-header">
             <h3 class="card-title">Event Panel</h3>
         </div>
         <div class="card-body">
-            <a class="btn btn-primary m-1" href="#" role="button"><img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" alt="" loading="lazy"> Event Chat</a>
+            <a class="btn btn-success m-1" href="{% url 'events-chat' event.id %}" role="button">
+                {% if event.get_total_comments == 1 %}
+                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="1 Comment" alt="" loading="lazy">
+                {% else %}
+                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
+                {% endif %}
+                 Event Chat
+            </a>
             <a class="btn btn-success m-1" href="#" role="button">My Order</a>
             <a class="btn btn-info m-1" href="#" role="button">Order Summary</a>
             <a class="btn btn-info m-1" href="#" role="button">User Breakdown</a>

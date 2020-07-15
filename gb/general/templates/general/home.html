@@ -20,10 +20,10 @@
                     <p class="card-text">
                         The groups can be in three different states:
                     <ul class="list-group">
-                    <li class="list-group-item"><span class="badge badge-success">Open</span> - You can actively add items, and make changes to your order.</li>
-                    <li class="list-group-item"><span class="badge badge-warning">Locked - Pending Completion</span> - The event is locked by the organizers.  All items and pieces in your order are frozen and can't be edited.  May be changed by the organizer back to "open."</li>
-                    <li class="list-group-item"><span class="badge badge-secondary">Complete</span> - The same as locked, except signalling the event has concluded.  Once complete, the event cannot be re-opened.</li>
-                </ul>
+                        <li class="list-group-item"><span class="badge badge-success">Open</span> - You can actively add items, and make changes to your order.</li>
+                        <li class="list-group-item"><span class="badge badge-warning">Locked - Pending Completion</span> - The event is locked by the organizers.  All items and pieces in your order are frozen and can't be edited.  May be changed by the organizer back to "open."</li>
+                        <li class="list-group-item"><span class="badge badge-secondary">Complete</span> - The same as locked, except signalling the event has concluded.  Once complete, the event cannot be re-opened.</li>
+                    </ul>
                     </p>
                     <hr/>
                     <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
@@ -63,6 +63,14 @@
                     <a class="btn btn-info float-right m-1" href="#" role="button">Order Summary</a>
                 {% endif %}
                 <a class="btn btn-success float-right m-1" href="#" role="button">My Order</a>
+                <a class="btn btn-success float-right m-1" href="{% url 'events-chat' membership.event.id %}" role="button">
+                    {% if membership.event.get_total_comments == 1 %}
+                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="1 Comment" alt="" loading="lazy">
+                    {% else %}
+                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="{{ membership.event.get_total_comments }} Comments" alt="" loading="lazy">
+                    {% endif %}
+                    Event Chat
+                </a>
                 <h3 class="font-weight-bold mb-3">
                     <a href="{% url 'events-event' membership.event.id %}">{{ membership.event.name }}</a>
                     {% if membership.is_organizer %}
@@ -81,8 +89,10 @@
                     <tr>
                         <th scope="col">Partipicants</th>
                         <th scope="col">Active Case Splits</th>
-                        <th scope="col">Total Cases Reserved</th>
-                        <th scope="col">Total Case Cost</th>
+                        {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
+                            <th scope="col">Total Cases Reserved</th>
+                            <th scope="col">Total Case Cost</th>
+                        {% endif %}
                         <th scope="col">Added Charges</th>
                     </tr>
                     </thead>
@@ -90,8 +100,10 @@
                     <tr>
                         <td>{{ membership.event.get_active_participants }}</td>
                         <td>{{ membership.event.get_active_case_splits }}</td>
-                        <td>{{ membership.event.get_total_cases }}</td>
-                        <td>{{ membership.event.get_event_total }}</td>
+                        {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
+                            <td>{{ membership.event.get_total_cases }}</td>
+                            <td>{{ membership.event.get_event_total }}</td>
+                        {% endif %}
                         <td>${{ membership.event.extra_charges }}</td>
                     </tr>
                     </tbody>

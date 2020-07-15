@@ -11,3 +11,7 @@ class EventCreateForm(forms.Form):
                                                                                         f'{current_year} Group Buy'}))
     description = forms.CharField(required= False, widget=forms.TextInput(attrs={'placeholder': f'Looking forward to '
                                                        f'another fun year!  Deadline for orders: 5/31/{current_year}'}))
+
+
+class EventCommentCreateForm(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Your comment here...'}))
