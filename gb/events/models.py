@@ -90,7 +90,7 @@ class Item(models.Model):
     category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, related_name='items')
 
     def __str__(self):
-        return f'{self.category.name} -> {self.name}'
+        return f'{self.category.name} -> {self.name} -> {self.id}'
 
     class Meta:
         ordering = ('category', 'name')
@@ -116,7 +116,7 @@ class CaseSplit(models.Model):
     is_complete = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'(Split) {self.event.name} -> {self.item.name}'
+        return f'(Split) {self.event.name} -> {self.item.name} -> {self.id}'
 
 
 class CasePieceCommit(models.Model):
@@ -137,8 +137,11 @@ class EventComment(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
 
+    def __str__(self):
+        return f'{self.event.name} -> {self.author.username} -> {self.date_added}'
+
     class Meta:
-        ordering = ('date_added',)
+        ordering = ('-date_added',)
 
 
 class ItemComment(models.Model):

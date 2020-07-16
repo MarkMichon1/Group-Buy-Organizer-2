@@ -65,9 +65,9 @@
                 <a class="btn btn-success float-right m-1" href="#" role="button">My Order</a>
                 <a class="btn btn-success float-right m-1" href="{% url 'events-chat' membership.event.id %}" role="button">
                     {% if membership.event.get_total_comments == 1 %}
-                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="1 Comment" alt="" loading="lazy">
+                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
                     {% else %}
-                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="{{ membership.event.get_total_comments }} Comments" alt="" loading="lazy">
+                        <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ membership.event.get_total_comments }} Comments" alt="" loading="lazy">
                     {% endif %}
                     Event Chat
                 </a>
@@ -77,7 +77,7 @@
                         <img src="{% static "events/img/crown.svg" %}" width="30" height="30" class="d-inline-block align-top" title="You're an organizer of this event." alt="" loading="lazy">
                     {% endif %}
                     {% if membership.check_if_active_buys_or_commits %}
-                        <img src="{% static "events/img/box.svg" %}" width="30" height="30" class="d-inline-block align-top" title="You are active in this event." alt="" loading="lazy">
+                        <img src="{% static "events/img/box.svg" %}" width="27" height="27" class="d-inline-block align-top" title="You are active in this event." alt="" loading="lazy">
                     {% endif %}
                 </h3>
                 <h6 class="card-subtitle mt-3 mb-4">{{ membership.event.description }}</h6>

@@ -89,6 +89,12 @@
         {% endif %}
     </div>
 </nav>
+<div class="container mt-5 mb-5">
+    {% if not title_h1_override %}
+        <h1>{{ title }}</h1>
+        <hr/>
+    {% endif %}
+</div>
 {% if messages %}
     {% for message in messages %}
         <div class="container alert alert-{{ message.tags }} mt-5 mb-5 text-center">
@@ -96,12 +102,6 @@
         </div>
     {% endfor %}
 {% endif %}
-<div class="container mt-5 mb-5">
-    {% if not title_h1_override %}
-        <h1>{{ title }}</h1>
-        <hr/>
-    {% endif %}
-</div>
 <div class="container mt-5 mb-5">
     {% block content %}{% endblock %}
 </div>

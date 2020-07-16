@@ -1,7 +1,13 @@
 {% extends 'general/primary.html' %}
 {% block content %}
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
     {% if user.display_explanations %}
-            <div class="card">
+            <div class="card mt-5 mb-5">
                 <div class="card-header">
                     <h5 class="card-title">Event Settings</h5>
                 </div>
@@ -14,4 +20,5 @@
                 </div>
             </div>
     {% endif %}
+    have mt-5 here for nav (?)
 {% endblock %}

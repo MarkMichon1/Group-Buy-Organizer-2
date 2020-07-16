@@ -1,12 +1,17 @@
 {% extends 'general/primary.html' %}
 {% block content %}
     {% load static %}
+    <nav class="mb-5 mt-5">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">{{ event.name }}</li>
+        </ol>
+    </nav>
     {% if user.display_explanations %}
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Event Page</h5>
-                </div>
-                <div class="card-body">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="card-title">Event Page</h5>
+            </div>
+            <div class="card-body">
                     <p class="card-text">
                         This is the main page for events, and works as an interactive price sheet.  Here you can see items that are available, or you can add your own if you don't see up yet.
                     </p>
@@ -65,9 +70,9 @@
         <div class="card-body">
             <a class="btn btn-success m-1" href="{% url 'events-chat' event.id %}" role="button">
                 {% if event.get_total_comments == 1 %}
-                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="1 Comment" alt="" loading="lazy">
+                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
                 {% else %}
-                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" class="d-inline-block align-top" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
+                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
                 {% endif %}
                  Event Chat
             </a>
