@@ -13,5 +13,9 @@ class EventCreateForm(forms.Form):
                                                        f'another fun year!  Deadline for orders: 5/31/{current_year}'}))
 
 
-class EventCommentCreateForm(forms.Form):
+class CommentCreateForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Your comment here...'}))
+
+
+class AddUserForm(forms.Form):
+    username = forms.CharField(label='Username To Add To Event:', widget=forms.TextInput(attrs={'placeholder': 'Add username here...'}))

@@ -1,9 +1,15 @@
 {% extends 'general/primary.html' %}
 {% load static %}
 {% block content %}
+    {% load humanize %}
     {% if user.is_authenticated %}
+            <nav class="mb-5 mt-5">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">Home</li>
+        </ol>
+    </nav>
         {% if user.display_explanations %}
-            <div class="card">
+            <div class="card mt-5">
                 <div class="card-header">
                     <h5 class="card-title">Your Events</h5>
                 </div>
@@ -56,13 +62,11 @@
                     <span class="badge badge-warning float-left m-2">Locked - Pending Completion</span>
                 {% endif %}
                 {% if membership.is_organizer %}
-                    <a class="btn btn-primary float-right m-1" href="#" role="button">Edit Event</a>
+                    <a class="btn btn-primary float-right m-1" href="{% url 'events-settings' membership.event.id %}" role="button">Event Settings</a>
+                    <a class="btn btn-primary float-right m-1" href="{% url 'events-manage-payments' membership.event.id %}" role="button">Manage Payments</a>
+                    <a class="btn btn-primary float-right m-1" href="{% url 'events-manage-users' membership.event.id %}" role="button">Manage Users</a>
                 {% endif %}
-                {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
-                    <a class="btn btn-info float-right m-1" href="#" role="button">User Breakdown</a>
-                    <a class="btn btn-info float-right m-1" href="#" role="button">Order Summary</a>
-                {% endif %}
-                <a class="btn btn-success float-right m-1" href="#" role="button">My Order</a>
+                <a class="btn btn-success float-right m-1" href="{% url 'events-my-order' membership.event.id user.id %}" role="button">My Order</a>
                 <a class="btn btn-success float-right m-1" href="{% url 'events-chat' membership.event.id %}" role="button">
                     {% if membership.event.get_total_comments == 1 %}
                         <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
@@ -81,7 +85,7 @@
                     {% endif %}
                 </h3>
                 <h6 class="card-subtitle mt-3 mb-4">{{ membership.event.description }}</h6>
-                <h6 class="card-subtitle mb-2 text-muted">Created {{ membership.event.date_created|date:'M d, Y'}} by {{ membership.event.created_by.username }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Created <abbr title='{{ membership.event.date_created }}'>{{ membership.event.date_created|naturaltime }}</abbr> by {{ membership.event.created_by.username }}</h6>
             </div>
             <div class="card-body">
                 <table class="table">

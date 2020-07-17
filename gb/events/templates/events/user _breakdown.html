@@ -1,4 +1,11 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    user breakdown placeholder
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+    user breakdown placeholder mt5
 {% endblock %}

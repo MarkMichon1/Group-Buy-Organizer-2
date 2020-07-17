@@ -1,3 +1,43 @@
+{#{% extends "general/primary.html" %}#}
+{#{% load crispy_forms_tags %}#}
+{#{% block content %}#}
+{#    <div class="card">#}
+{#        <div class="card-body">#}
+{#            <form method ='POST'>#}
+{#                {% csrf_token %}#}
+{#                <fieldset class="form-group">#}
+{#                    <legend class="border-bottom mb-4">#}
+{#                        Log In#}
+{#                    </legend>#}
+{#                    <div id="div_id_username" class="form-group">#}
+{#                        <label for="id_username" class=" requiredField">#}
+{#                            Email Address<span class="asteriskField">*</span>#}
+{#                        </label>#}
+{#                        <div class="">#}
+{#                            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="30" class="textinput textInput form-control" required id="id_username">#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div id="div_id_password" class="form-group">#}
+{#                        <label for="id_password" class=" requiredField">#}
+{#                            Password<span class="asteriskField">*</span>#}
+{#                        </label>#}
+{#                        <div class="">#}
+{#                            <input type="password" name="password" autocomplete="current-password" class="textinput textInput form-control" required id="id_password">#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </fieldset>#}
+{#                <div class="form-group">#}
+{#                    <button class="btn btn-outline-info" type="submit">Login</button>#}
+{#                </div>#}
+{#            </form>#}
+{#            <div class="border-top pt-3">#}
+{#                <small class="text-muted">Need an account? <a class="ml-2" href="{% url 'register' %}">Sign Up Here</a></small>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+
+
 {% extends "general/primary.html" %}
 {% load crispy_forms_tags %}
 {% block content %}

@@ -1,7 +1,10 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from users.models import User
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(label='Email Address')
 
 
 class UserRegisterForm(UserCreationForm):

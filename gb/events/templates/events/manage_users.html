@@ -1,4 +1,96 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    manage users placeholder
+    {% load crispy_forms_tags %}
+    {% load humanize %}
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+    {% if user.display_explanations %}
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="card-title">Manage Users</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    In this organizer-only view, you're able to add users to the event, remove them, or toggle whether they are an event organizer.  Please note that if you remove a participant, all of their activity will be removed from the group; this can't be undone!
+                </p>
+                <p class="card-text">
+                    Think of event organizers as the administrators for your event.  You have complete control over the event, and can change or remove any actions done by the users.  You will see edit and remove buttons sometimes by certain elements; these are only visible to you, and sometimes the creator of it.  It is worth nothing that only the event creator can add or remove other organizers.
+                </p>
+                <p class="card-text">
+                    Once you have added users, the next (and main) step is to add items, and to either reserve cases, or participate in case splits.  More instructions for that are on their respective page.
+                </p>
+                <hr/>
+                <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <div class="card mb-5 mt-5">
+                <div class="card-header">
+                    <h3 class="card-title">Add Users</h3>
+                </div>
+                <div class="card-body">
+                    <form class="m-3" method="post">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ add_user_form|crispy }}
+                        </fieldset>
+                        <button type="submit" value="Submit" name="add_user" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form>
+        <table class="table mb-5">
+            <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Joined:</th>
+                <th scope="col">User Level</th>
+                <th scope="col">Toggle Organizer?</th>
+                <th scope="col">Kick From Event?</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for membership in memberships %}
+                {% if not membership.user.is_staff %}
+                    {% if membership.is_creator or membership.is_organizer %}
+                        <tr class="table-success">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                <th scope="row">{{ membership.user.username }}</th>
+                <td><abbr title='{{ membership.date_joined }}'>{{ membership.date_joined|naturaltime }}</abbr></td>
+                {% if membership.user.is_staff %}
+                    <td class="font-weight-bold">Site Staff</td>
+                {% elif membership.is_creator %}
+                    <td class="font-weight-bold">Event Creator</td>
+                {% elif membership.is_organizer %}
+                    <td class="font-weight-bold">Event Organizer</td>
+                {% else %}
+                    <td>Participant</td>
+                {% endif %}
+                {% if your_membership.user.is_staff or membership.is_creator %}
+                    <td><a class="btn btn-primary" href="{% url 'events-toggle-organizer' event.id membership.user.id %}" role="button">Toggle</a></td>
+                    <td><a class="btn btn-outline-danger" href="{% url 'events-remove-participant' event.id membership.user.id %}" role="button">Remove {{ membership.user.username }}</a></td>
+                {% elif not membership.is_creator and not membership.is_organizer %}
+                    <td><a class="btn btn-primary" href="{% url 'events-toggle-organizer' event.id membership.user.id %}" role="button">Toggle</a></td>
+                    <td><a class="btn btn-outline-danger" href="{% url 'events-remove-participant' event.id membership.user.id %}" role="button">Remove {{ membership.user.username }}</a></td>
+                {% elif not membership.is_creator and membership.is_organizer %}
+                    <td><a class="btn btn-primary" href="#" role="button" disabled>Cannot Toggle</a></td>
+                    <td><a class="btn btn-outline-danger" href="#" role="button" disabled>Disabled</a></td>
+                {% endif %}
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </form>
 {% endblock %}

@@ -5,6 +5,7 @@
     {% load static %}
     <nav>
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
@@ -29,11 +30,18 @@
             {% for comment in page_comments %}
                 <li class="list-group-item">
                     <h5>
-                        <span class="font-weight-bold">{{ comment.author.username }}</span>
-                        {% if membership.is_organizer %}
+                        {% if comment.author and comment.membership or not comment.membership and comment.author.is_staff %}
+                            <span class="font-weight-bold">{{ comment.author.username }}</span>
+                        {% else %}
+                            <span class="text-muted">Anonymous </span>
+                        {% endif %}
+                        {% if not comment.membership and not comment.author.is_staff %}
+                            <img src="{% static "events/img/no.svg" %}" width="18" height="18" class="ml-1 mr-1 d-inline-block align-top" title="Not In Event" alt="" loading="lazy">
+                        {% endif %}
+                        {% if comment.membership.is_organizer %}
                             <img src="{% static "events/img/crown.svg" %}" width="20" height="20" class="d-inline-block align-top" title="Event Organizer" alt="" loading="lazy">
                         {% endif %}
-                        {% if user.is_staff %}
+                        {% if comment.membership.user.is_staff %}
                             <img src="{% static "events/img/gear.svg" %}" width="20" height="20" class="d-inline-block align-top" title="Site Staff" alt="" loading="lazy">
                         {% endif %}
                         <span class="text-muted"> -- <abbr title='{{ comment.date_added }}'>{{ comment.date_added|naturaltime }}</abbr></span>

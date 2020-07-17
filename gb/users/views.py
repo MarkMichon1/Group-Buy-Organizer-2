@@ -1,10 +1,16 @@
 from django.contrib import messages
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
 
 from events.models import Event, EventMembership
-from users.forms import UserRegisterForm
+from users.forms import LoginForm, UserRegisterForm
 from users.models import User
+
+
+class LoginView(auth_views.LoginView):
+    form_class = LoginForm
+    template_name = 'users/login.html'
 
 
 def register(request):
@@ -14,7 +20,7 @@ def register(request):
             user = form.save()
 
             # Adding user to sample event.
-            event = Event.objects.get(id='0c4de13a5e37410b86a41fc82eac3d44')
+            event = Event.objects.get(id='abbb8e18-1a45-42bc-9892-8932358fcbfa')
             membership = EventMembership(user=user, event=event)
             membership.save()
             user.is_active = False

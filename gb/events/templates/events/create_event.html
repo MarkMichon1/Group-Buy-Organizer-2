@@ -1,6 +1,12 @@
 {% extends 'general/primary.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
+    <nav>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
     <form class="container mt-5 mb-5" method="post">
         {% csrf_token %}
         <fieldset class="form-group">

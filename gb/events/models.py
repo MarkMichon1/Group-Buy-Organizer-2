@@ -23,7 +23,7 @@ class Event(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     is_locked = models.BooleanField(default=False)
     is_closed = models.BooleanField(default=False)
-    users_can_see_master_overview = models.BooleanField(default=True)
+    users_full_event_visibility = models.BooleanField(default=True)
     extra_charges = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='created_events')
     members = models.ManyToManyField(User, through='EventMembership')
@@ -70,7 +70,7 @@ class EventMembership(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_organizer = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
+    is_creator = models.BooleanField(default=False)
     has_paid = models.BooleanField(default=False)
 
     def __str__(self):
@@ -78,6 +78,12 @@ class EventMembership(models.Model):
 
     def check_if_active_buys_or_commits(self):
         return self.case_buys.count() > 1 or self.split_commits.count() > 1
+
+    def generate_total(self): # For use in added cost split, user breakdown final addup, and manage payments.
+        pass
+
+    class Meta:
+        ordering = ('user',)
 
 
 class Item(models.Model):
@@ -132,13 +138,17 @@ class CasePieceCommit(models.Model):
 
 
 class EventComment(models.Model):
-    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    author = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name='+')
+    membership = models.ForeignKey(EventMembership, blank=True, null=True, on_delete=models.SET_NULL, related_name='+')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')
     date_added = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
 
     def __str__(self):
-        return f'{self.event.name} -> {self.author.username} -> {self.date_added}'
+        username = None
+        if self.author:
+            username = self.author.username
+        return f'{self.event.name} -> {username} -> {self.date_added}'
 
     class Meta:
         ordering = ('-date_added',)

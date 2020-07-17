@@ -2,10 +2,11 @@
 {% block content %}
     <nav>
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'events-item' event_id=event.id item_id=item.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events-item' event_id=event.id item_id=item.id %}">{{ item.name }}</a></li>
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    case split placeholder mt5
+    case split placeholder mt5 ... see if it can be one page
 {% endblock %}

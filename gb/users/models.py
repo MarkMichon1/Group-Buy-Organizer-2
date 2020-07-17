@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=30, unique=True)
     night_mode_enabled = models.BooleanField(default=False, blank=False)
     display_explanations = models.BooleanField(default=True)
     #todo- timezones?
@@ -24,3 +26,6 @@ class User(AbstractUser):
 
     def send_event_status_email(self, status):
         pass
+
+    class Meta:
+        ordering = ('username',)
