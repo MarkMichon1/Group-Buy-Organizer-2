@@ -80,7 +80,7 @@ class EventMembership(models.Model):
         return self.case_buys.count() > 1 or self.split_commits.count() > 1
 
     def generate_total(self): # For use in added cost split, user breakdown final addup, and manage payments.
-        pass
+        return 0.00
 
     class Meta:
         ordering = ('user',)

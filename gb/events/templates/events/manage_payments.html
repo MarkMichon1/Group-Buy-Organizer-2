@@ -7,5 +7,47 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    mt5
+    {% if user.display_explanations %}
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="card-title">Manage Payments</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    This feature was added to help track payments from partipants, as well as their total.  Usage is optional and doesn't affect anything else.  Its worth nothing that this total includes the optional extra charges, which are set at <a href="{% url 'events-settings' event.id %}">Event Settings</a>.  More information about them is available there as well.
+                </p>
+                <hr/>
+                <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+            </div>
+        </div>
+    {% endif %}
+    <table class="table mt-5">
+        <thead>
+        <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Total</th>
+            <th scope="col">Paid?</th>
+            <th scope="col">Toggle</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for membership in memberships %}
+            {% if membership.has_paid %}
+                <tr class="table-primary">
+                    {% else %}
+                <tr>
+            {% endif %}
+        <th scope="row"><a href="{% url 'events-my-order' event.id membership.user.id %}">{{ membership.user.username }}</a></th>
+        <td>${{ membership.generate_total|floatformat:2 }}</td>
+        {% if membership.has_paid %}
+            <td>Yes</td>
+            <td><a class="btn btn-warning" href="{% url 'events-toggle-payment' event.id membership.id %}" role="button">Mark as Unpaid</a></td>
+        {% else %}
+            <td>No</td>
+            <td><a class="btn btn-success" href="{% url 'events-toggle-payment' event.id membership.id %}" role="button">Mark as Paid</a></td>
+        {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

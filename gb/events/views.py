@@ -20,8 +20,7 @@ def create_event(request):
             description = form.cleaned_data['description']
             event = Event(name=title, description=description, created_by=request.user)
             event.save()
-            membership = EventMembership(user=request.user, event=event, is_organizer=True, is_creator=True,
-                                         is_staff=request.user.is_staff)
+            membership = EventMembership(user=request.user, event=event, is_organizer=True, is_creator=True)
             membership.save()
             messages.success(request, f"Event successfully created!  Click your event Event Settings button in the organizer toolbar to add more members.")
             return redirect('general-home')
@@ -58,16 +57,41 @@ def event_settings(request, event_id):
 
 
 @login_required
-def leave_event(request, event_id):
-    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+def event_toggle_lock(request, event_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
     if is_valid == False:
         return redirect('general-home')
 
 
 @login_required
-def delete_event(request, event_id):
+def event_toggle_close(request, event_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
+    if is_valid == False:
+        return redirect('general-home')
+
+
+@login_required
+def leave_event(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
     if is_valid == False:
+        return redirect('general-home')
+    membership.delete()
+    messages.success(request, 'You have left the event!')
+    return redirect('general-home')
+
+
+@login_required
+def delete_event(request, event_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
+    if is_valid == False:
+        return redirect('general-home')
+    if membership.is_creator or request.user.is_staff:
+        name = event.name
+        event.delete()
+        messages.success(request, f"Poof!  Event '{name}' has been deleted.")
+        return redirect('general-home')
+    else:
+        messages.warning(request, 'Access denied.')
         return redirect('general-home')
 
 
@@ -129,12 +153,6 @@ def manage_payments(request, event_id):
         return redirect('general-home')
 
     memberships = EventMembership.objects.filter(event=event)
-    if request.method == 'POST':
-        form = CommentCreateForm(request.POST)
-        if form.is_valid():
-            pass
-    else:
-        pass #get
 
     context = {
         'event': event,
@@ -142,6 +160,22 @@ def manage_payments(request, event_id):
         'title': 'Manage Payments'
     }
     return render(request, 'events/manage_payments.html', context=context)
+
+
+@login_required
+def toggle_payment(request, event_id, target_membership_id):
+    event, your_membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
+    if is_valid == False:
+        return redirect('general-home')
+    membership = get_object_or_404(EventMembership, pk=target_membership_id)
+    membership.has_paid = not membership.has_paid
+    membership.save()
+    if membership.has_paid:
+        messages.success(request, f'{membership.user.username} has been marked as paid!')
+        return redirect('events-manage-payments', event_id=event_id)
+    else:
+        messages.success(request, f'{membership.user.username} has been marked as unpaid!')
+        return redirect('events-manage-payments', event_id=event_id)
 
 
 @login_required
@@ -195,6 +229,7 @@ def toggle_organizer(request, event_id, user_id):
     else:
         messages.warning(request, 'Access denied.')
         return redirect('general-home')
+
 
 @login_required
 def remove_participant(request, event_id, user_id):

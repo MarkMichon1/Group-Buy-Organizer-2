@@ -20,5 +20,6 @@ urlpatterns = [
     path('<uuid:event_id>/order-breakdown/', views.order_breakdown, name='events-order-breakdown'),
     path('<uuid:event_id>/remove-participant/<uuid:user_id>/', views.remove_participant, name='events-remove-participant'),
     path('<uuid:event_id>/summary/', views.event_order_summary, name='events-order-summary'),
-    path('<uuid:event_id>/toggle-organizer/<uuid:user_id>/', views.toggle_organizer, name='events-toggle-organizer')
+    path('<uuid:event_id>/toggle-organizer/<uuid:user_id>/', views.toggle_organizer, name='events-toggle-organizer'),
+    path('<uuid:event_id>/toggle-payment/<int:target_membership_id>/', views.toggle_payment, name='events-toggle-payment')
 ]

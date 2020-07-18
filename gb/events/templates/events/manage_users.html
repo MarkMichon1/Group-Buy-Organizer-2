@@ -68,9 +68,7 @@
                     {% endif %}
                 <th scope="row">{{ membership.user.username }}</th>
                 <td><abbr title='{{ membership.date_joined }}'>{{ membership.date_joined|naturaltime }}</abbr></td>
-                {% if membership.user.is_staff %}
-                    <td class="font-weight-bold">Site Staff</td>
-                {% elif membership.is_creator %}
+                {% if membership.is_creator %}
                     <td class="font-weight-bold">Event Creator</td>
                 {% elif membership.is_organizer %}
                     <td class="font-weight-bold">Event Organizer</td>
@@ -84,10 +82,17 @@
                     <td><a class="btn btn-primary" href="{% url 'events-toggle-organizer' event.id membership.user.id %}" role="button">Toggle</a></td>
                     <td><a class="btn btn-outline-danger" href="{% url 'events-remove-participant' event.id membership.user.id %}" role="button">Remove {{ membership.user.username }}</a></td>
                 {% elif not membership.is_creator and membership.is_organizer %}
-                    <td><a class="btn btn-primary" href="#" role="button" disabled>Cannot Toggle</a></td>
-                    <td><a class="btn btn-outline-danger" href="#" role="button" disabled>Disabled</a></td>
+                    <td><a class="btn btn-primary disabled" href="#" role="button" disabled>Cannot Toggle</a></td>
+                    <td><a class="btn btn-outline-danger disabled" href="#" role="button" disabled>Disabled</a></td>
                 {% endif %}
                 </tr>
+                {% else %}
+                    <tr class="table-primary">
+                    <th scope="row">{{ membership.user.username }}</th>
+                    <td><abbr title='{{ membership.date_joined }}'>{{ membership.date_joined|naturaltime }}</abbr></td>
+                    <td class="font-weight-bold">Site Staff</td>
+                    <td><a class="btn btn-outline-secondary disabled" href="#" role="button" disabled>Disabled</a></td>
+                    <td><a class="btn btn-outline-danger disabled" href="#" role="button" disabled>Disabled</a></td>
                 {% endif %}
             {% endfor %}
             </tbody>

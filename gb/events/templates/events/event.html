@@ -83,11 +83,32 @@
             </a>
             <a class="btn btn-success m-1" href="#" role="button">My Order</a>
             {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
-                <a class="btn btn-info m-1" href="#" role="button">Order Summary</a>
-                <a class="btn btn-info m-1" href="#" role="button">User Breakdown</a>
+                <a class="btn btn-info m-1" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
+                <a class="btn btn-info m-1" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
             {% endif %}
-            <a class="btn btn-warning m-1" href="#" role="button">Leave Event</a>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#leaveModal">
+                Leave Event
+            </button>
 
         </div>
     </div>
+    <div class="modal fade" id="leaveModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Leave {{ event.name }}?</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to leave {{ event.name }}?  Any case buys or case splits you were involved in will be removed... this cannot be undone!  The only way you can re-access this event again is if an organizer invites you.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a class="btn btn-danger m-1" href="{% url 'events-leave' event.id %}" role="button">Leave</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
