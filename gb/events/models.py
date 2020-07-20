@@ -1,5 +1,6 @@
 from django.db import models
 
+import math
 import uuid
 
 from users.models import User
@@ -55,14 +56,62 @@ class Event(models.Model):
     def get_total_comments(self):
         return self.comments.count()
 
-    def generate_event_items(self):
-        pass
+    def generate_event_pages_contents(self, page_type, membership=None):
+        items = []
 
-    def generate_order_summary(self):
-        pass
+        if page_type == 'event':
+            items = self.items.all()
 
-    def generate_user_breakdown(self):
-        pass
+        elif page_type == 'breakdown' or page_type == 'summary':
+            for item in self.items.all():
+                if len(item.case_splits.count() > 0 or item.case_buys.count() > 0):
+                    items.append(item)
+
+        elif page_type == 'my_order':
+            case_buys = CaseBuy.objects.filter(membership=membership)
+            for case_buy in case_buys:
+                items.append(case_buy.item)
+            split_commits = CasePieceCommit.objects.filter(membership=membership)
+            for commit in split_commits:
+                if commit.case_split.is_complete:
+                    items.append(commit.case_split.item)
+
+
+        page_data = {}
+
+        # Core Category/Item View
+        item_groups = []
+        if items:
+            category_list = [items[0].category.name, []]
+            category_name = items[0].category.name
+            for item in items:
+                if item.category.name == category_name:
+                    if page_type == 'event':
+                        category_list[1].append(item.render_event_view(membership=membership))
+                else:
+                    item_groups.append(category_list)
+                    category_name = item.category.name
+                    category_list = [item.category.name, []]
+                    if page_type == 'event':
+                        category_list[1].append(item.render_event_view(membership=membership))
+
+            # Cleanup
+            item_groups.append(category_list)
+
+
+        page_data['item_groups'] = item_groups
+
+        # Extras at end of page
+        if page_type == 'breakdown':
+            pass
+
+        elif page_type == 'my_order':
+            pass
+
+        elif page_type == 'summary':
+            pass
+
+        return page_data
 
 
 class EventMembership(models.Model):
@@ -79,8 +128,14 @@ class EventMembership(models.Model):
     def check_if_active_buys_or_commits(self):
         return self.case_buys.count() > 1 or self.split_commits.count() > 1
 
-    def generate_total(self): # For use in added cost split, user breakdown final addup, and manage payments.
-        return 0.00
+    def generate_my_total(self): # For use in added cost split, user breakdown final addup, and manage payments.
+        total = 0
+        for case_buy in self.case_buys: #todo... all?
+            total += case_buy.item.price * case_buy.quantity
+        for commit in self.split_commits:
+            total += round(((commit.quantity/commit.case_split.item.packing) * commit.case_split.item.price), 2)
+
+        return total
 
     class Meta:
         ordering = ('user',)
@@ -96,7 +151,65 @@ class Item(models.Model):
     category = models.ForeignKey(Category, null=True, on_delete=models.SET_NULL, related_name='items')
 
     def __str__(self):
-        return f'{self.category.name} -> {self.name} -> {self.id}'
+        return f'{self.event.name} -> {self.category.name} -> {self.name} -> {self.id}'
+
+    def render_event_view(self, membership):
+        returned_dict = {}
+        returned_dict = {**returned_dict, **self._core_data_fragment()}
+        returned_dict['active_case_splits'] = self.case_splits.filter(is_complete=False).count()
+        returned_dict = {**returned_dict, **self._your_involvement_fragment(membership=membership)}
+        return returned_dict
+
+    def render_breakdown_view(self):
+        pass
+
+    def render_my_order_view(self):
+        pass
+
+    def render_summary_view(self):
+        pass
+
+    def _core_data_fragment(self):
+        new_dict = {}
+        new_dict['name'] = self.name
+        new_dict['packing'] = self.packing
+        new_dict['case_price'] = round(self.price, 2)
+        new_dict['piece_price'] = round((self.price/self.packing), 2)
+        new_dict['id'] = self.id
+        return new_dict
+
+    def _your_involvement_fragment(self, membership, is_my_order=False):
+        new_dict = {}
+        cases_you_bought = 0
+        case_buys = CaseBuy.objects.filter(membership=membership)
+        for case_buy in case_buys:
+            cases_you_bought += case_buy.quantity
+        new_dict['cases_you_bought'] = cases_you_bought
+
+        splits_involved_in = 0
+        pieces_reserved_from_splits = 0
+        for commit in CasePieceCommit.objects.filter(membership=membership):
+            if commit.case_split.is_complete:
+                pieces_reserved_from_splits += commit.quantity
+                splits_involved_in += 1
+        new_dict['pieces_reserved_from_splits'] = pieces_reserved_from_splits
+
+        new_dict['your_total_price'] = (cases_you_bought * self.price) + round(((self.price/self.packing) *
+                                                                                pieces_reserved_from_splits), 2)
+
+        new_dict['are_involved'] = new_dict['your_total_price'] > 0
+
+        if is_my_order:
+            new_dict['splits_involved_in'] = splits_involved_in
+
+        return new_dict
+
+    def _total_cases_fragment(self):
+        new_dict = {}
+
+        return new_dict
+
+
 
     class Meta:
         ordering = ('category', 'name')
@@ -123,6 +236,9 @@ class CaseSplit(models.Model):
 
     def __str__(self):
         return f'(Split) {self.event.name} -> {self.item.name} -> {self.id}'
+
+    def render_case_splits(self):
+        pass
 
 
 class CasePieceCommit(models.Model):
@@ -161,8 +277,15 @@ class ItemComment(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_comments')
     comment = models.TextField()#todo ordering
 
+    class Meta:
+        ordering = ('-date_added',)
+
 
 class ItemYoutubeVideo(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
     date_added = models.DateTimeField(auto_now_add=True)
     url = models.CharField(max_length=150) #todo ordering
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_youtube_videos')
+
+    class Meta:
+        ordering = ('-date_added',)

@@ -38,7 +38,7 @@
                 <tr>
             {% endif %}
         <th scope="row"><a href="{% url 'events-my-order' event.id membership.user.id %}">{{ membership.user.username }}</a></th>
-        <td>${{ membership.generate_total|floatformat:2 }}</td>
+        <td>${{ membership.generate_my_total|floatformat:2 }}</td>
         {% if membership.has_paid %}
             <td>Yes</td>
             <td><a class="btn btn-warning" href="{% url 'events-toggle-payment' event.id membership.id %}" role="button">Mark as Unpaid</a></td>

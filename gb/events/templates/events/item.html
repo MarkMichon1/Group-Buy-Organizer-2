@@ -7,5 +7,25 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
+    {% if user.display_explanations %}
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="card-title">Event Page</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    This is where all of the magic happens in event.  This is where you actively reserve full cases for yourself, or partipate in case splits.
+                </p>
+                <p class="card-text">
+                    Case buys are pretty straight forward.
+                </p>
+                <p class="card-text">
+                    Case splits are
+                </p>
+                <hr/>
+                <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+            </div>
+        </div>
+    {% endif %}
     item placeholder MT5... display some sale data if event allows?  inc in explanation
 {% endblock %}

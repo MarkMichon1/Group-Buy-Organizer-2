@@ -6,9 +6,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
-from events.forms import AddUserForm, CommentCreateForm, EventCreateForm
+from events.forms import AddUserForm, CommentCreateForm, CreateItemForm, EventCreateForm
 from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item
-from events.utilities import event_auth_checkpoint
+from events.view_utilities import event_auth_checkpoint
 from users.models import User
 
 @login_required
@@ -37,11 +37,27 @@ def event(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
     if is_valid == False:
         return redirect('general-home')
+    event_data = event.generate_event_pages_contents(page_type='event', membership=membership)
 
-    context = {'title' : event.name,
-               'event' : event,
-               'membership' : membership}
-    return render(request, 'events/event.html', context=context)
+    if request.method == 'POST':
+        form = CreateItemForm(request.POST)
+        if form.is_valid():
+            new_item = form.save(commit=False)
+            # form.data['added_by'] = request.user -- added_by, name, price, packing, event, category
+            new_item.added_by = membership
+            new_item.event = event
+            new_item.save()
+            messages.success(request, "Item added!")
+            return redirect('events-event', event_id=event.id)
+    else:
+        context = {
+            'event_data' : event_data,
+            'title' : event.name,
+            'event' : event,
+            'form': CreateItemForm(),
+            'membership' : membership
+        }
+        return render(request, 'events/event.html', context=context)
 
 
 @login_required

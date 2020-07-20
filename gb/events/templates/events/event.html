@@ -1,5 +1,6 @@
 {% extends 'general/primary.html' %}
 {% block content %}
+    {% load crispy_forms_tags %}
     {% load static %}
     <nav class="mb-5 mt-5">
         <ol class="breadcrumb">
@@ -67,48 +68,151 @@
             This event has been locked by the event organizers.  This is usually done in preparation of wrapping everything up.  All case buys and case splits have been locked and cannot be changed.  Event chat still works.
         </div>
     {% endif %}
-
-    <div class="card mb-5 mt-5">
-        <div class="card-header">
-            <h3 class="card-title">Event Panel</h3>
+    {% if not event.is_locked %}
+        <div class="row justify-content-around">
+            <div class="col-6">
+                <div class="card mt-5 mb-5">
+                    <div class="card-header">
+                        <h3 class="card-title">Create New Item</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method ='POST'>
+                            {% csrf_token %}
+                            <fieldset class="form-group">
+                                {{ form|crispy }}
+                            </fieldset>
+                            <div class="form-group">
+                                <button class="btn btn-info" type="submit">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card mb-5 mt-5">
+                    <div class="card-header">
+                        <h3 class="card-title">Event Panel</h3>
+                    </div>
+                    <div class="card-body">
+                        <a class="btn btn-success m-2" href="{% url 'events-chat' event.id %}" role="button">
+                            {% if event.get_total_comments == 1 %}
+                                <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
+                            {% else %}
+                                <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
+                            {% endif %}
+                            Event Chat
+                        </a>
+                        <a class="btn btn-success m-2" href="#" role="button">My Order</a>
+                        {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
+                            <a class="btn btn-info m-2" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
+                            <a class="btn btn-info m-2" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
+                        {% endif %}
+                        <button type="button" class="btn btn-warning m-2" data-toggle="modal" data-target="#leaveModal">
+                            Leave Event
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <a class="btn btn-success m-1" href="{% url 'events-chat' event.id %}" role="button">
-                {% if event.get_total_comments == 1 %}
-                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
-                {% else %}
-                    <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
-                {% endif %}
-                Event Chat
-            </a>
-            <a class="btn btn-success m-1" href="#" role="button">My Order</a>
-            {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
-                <a class="btn btn-info m-1" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
-                <a class="btn btn-info m-1" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
+    {% endif %}
+    {% if event_data.item_groups %}
+        {% for item_group in event_data.item_groups %}
+            <div class="container mb-4">
+                <h3>{{ item_group.0 }}</h3>
+                <hr/>
+                <table class="table table-hover mt-5">
+                    <thead>
+                    <tr>
+                        <th scope="col">Item Name</th>
+                        <th scope="col">Packing</th>
+                        <th scope="col">Case Price</th>
+                        <th scope="col">Price Per Piece</th>
+                        <th scope="col">Active Case Splits</th>
+                        <th scope="col">Cases You've Bought</th>
+                        <th scope="col">Pieces Reserved From Splits</th>
+                        <th scope="col">Your Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in item_group.1 %}
+                        {% if item.are_active %}
+                            <tr class="table-success">
+                                {% else %}
+                            <tr>
+                        {% endif %}
+                    <th scope="row">
+                        <a href="{% url 'events-item' event.id item.id %}">{{ item.name }}</a>
+                    {% if item.item_youtube_videos %}
+                        {% if item.item_youtube_videos|length == 1 %}
+                            <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="1 Youtube Video" alt="" loading="lazy">
+                        {% else %}
+                            <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="{{ item.item_youtube_videos|length }} Youtube Videos" alt="" loading="lazy">
+                        {% endif %}
+                    {% endif %}
+                    {% if item.item_comments %}
+                        {% if item.item_comments|length == 1 %}
+                            <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="1 Item Comment" alt="" loading="lazy">
+                        {% else %}
+                            <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="{{ item.item_comments|length }} Item Comments" alt="" loading="lazy">
+                        {% endif %}
+                    {% else %}
+                    {% endif %}
+                    </th>
+                    <td>{{ item.packing }} / 1</td>
+                    <td>${{ item.case_price }}</td>
+                    <td>${{ item.piece_price }}</td>
+                    {% if item.active_case_splits > 0 %}
+                        <td class="font-weight-bold">{{ item.active_case_splits|length}}</td>
+                    {% else %}
+                        <td class="text-muted">---</td>
+                    {% endif %}
+                    {% if item.cases_you_bought > 0 %}
+                        <td class="font-weight-bold">{{ item.cases_you_bought }}</td>
+                    {% else %}
+                        <td class="text-muted">---</td>
+                    {% endif %}
+                    {% if item.pieces_reserved_from_splits > 0 %}
+                        <td class="font-weight-bold">{{ item.pieces_reserved_from_splits }}</td>
+                    {% else %}
+                        <td class="text-muted">---</td>
+                    {% endif %}
+                    {% if item.your_total_price > 0 %}
+                        <td class="font-weight-bold">${{ item.your_total_price }}</td>
+                    {% else %}
+                        <td class="text-muted">---</td>
+                    {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            {% if event.is_locked %}
+                No items were created for this event.
+            {% else %}
+                No items created (yet!)... use the <span class="font-weight-bold">Item Panel</span> above to get started.
             {% endif %}
-            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#leaveModal">
-                Leave Event
-            </button>
-
+        </div>
+    {% endif %}
+    <div class="modal fade" id="leaveModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Leave {{ event.name }}?</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to leave {{ event.name }}?  Any case buys or case splits you were involved in will be removed... this cannot be undone!  The only way you can re-access this event again is if an organizer invites you.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger m-1" href="{% url 'events-leave' event.id %}" role="button">Leave</a>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="modal fade" id="leaveModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Leave {{ event.name }}?</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to leave {{ event.name }}?  Any case buys or case splits you were involved in will be removed... this cannot be undone!  The only way you can re-access this event again is if an organizer invites you.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <a class="btn btn-danger m-1" href="{% url 'events-leave' event.id %}" role="button">Leave</a>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock content %}
