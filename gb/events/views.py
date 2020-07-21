@@ -1,13 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import Http404
-from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.shortcuts import get_object_or_404, redirect, render
 
 from events.forms import AddUserForm, CommentCreateForm, CreateItemForm, EventCreateForm
-from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item
+from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item, ItemComment,\
+                                                            ItemYoutubeVideo
 from events.view_utilities import event_auth_checkpoint
 from users.models import User
 
@@ -117,12 +115,30 @@ def item(request, event_id, item_id):
     if is_valid == False:
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
-    context = {
-        'event': event,
-        'item': item,
-        'title': item.name
-    }
-    return render(request, 'events/item.html', context=context)
+
+    if request.method == 'POST':
+        form = CommentCreateForm(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data['comment']
+            event_comment = ItemComment(author=request.user, event=event, membership=membership, comment=comment)
+            event_comment.save()
+            messages.success(request, 'Comment posted!')
+            return redirect('events-chat', event_id=event_id)
+    else:
+        event_comments = EventComment.objects.filter(event=event)
+        paginator = Paginator(event_comments, 50)
+        page_number = request.GET.get('page')
+        page_comments = paginator.get_page(page_number)
+
+        context = {
+            'event' : event,
+            'form' : CommentCreateForm(),
+            'item': item,
+            'membership' : membership,
+            'page_comments' : page_comments,
+            'title' : item.name
+        }
+        return render(request, 'events/item.html', context=context)
 
 
 @login_required
@@ -141,10 +157,13 @@ def edit_item(request, event_id, item_id):
 
 @login_required
 def delete_item(request, event_id, item_id):
-    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
     if is_valid == False:
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
+    item.delete()
+    messages.success(request, 'Item successfully deleted!')
+    return redirect('events-event', event_id=event_id)
 
 
 @login_required

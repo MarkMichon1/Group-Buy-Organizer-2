@@ -4,28 +4,114 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">Items</a></li>
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
+    <p class="text-muted">Added by {{ item.added_by.user.username }}</p>
     {% if user.display_explanations %}
         <div class="card mt-5">
             <div class="card-header">
-                <h5 class="card-title">Event Page</h5>
+                <h5 class="card-title">Item Page</h5>
             </div>
             <div class="card-body">
                 <p class="card-text">
                     This is where all of the magic happens in event.  This is where you actively reserve full cases for yourself, or partipate in case splits.
                 </p>
                 <p class="card-text">
-                    Case buys are pretty straight forward.
+                    Case buys are pretty straight forward.  Use the dropdown menu to select how many full cases you'd be interested in reserving, and press submit.  If you ever change your mind and feel like changing the quantity, you're free to as long as the event is open.
                 </p>
                 <p class="card-text">
-                    Case splits are
+                    Case splits are when you share a case with one or more other users.  If and only if all of the pieces in the case are reserved, the case will be "committed" and locked into your order.  That means any case splits that don't have every item in the case reserved by the end of the group buy event will not be locked in.  Please note that you or anyone can pull out of a split while the event is open, and that once again removes the split from all other partipants until or unless it gets filled again.
+                </p>
+                <p class="card-text">
+                    Finally, comments are available at the bottom of the page.  This is where you're able to talk about and discuss items specifically instead of the general event chat.
                 </p>
                 <hr/>
                 <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
             </div>
         </div>
     {% endif %}
-    item placeholder MT5... display some sale data if event allows?  inc in explanation
+    {% if membership.is_organizer or membership.user.is_staff %}
+        item edit card form here
+    {% endif %}
+    <div>
+        event item slice, minus item name
+    </div>
+    <div>
+        whole cases  Use this form to update how many whole cases you'd like to order.
+    </div>
+    <div>
+        case splits
+    </div>
+    <div>
+        {% if not event.is_locked %}
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="card mb-5 mt-5">
+                    <form class="m-3" method="post">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ form|crispy }}
+                        </fieldset>
+                        <button type="submit" value="Submit" class="btn btn-primary">Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if page_comments %}
+        <ul class="list-group mb-5 mt-5">
+            {% for comment in page_comments %}
+                <li class="list-group-item">
+                    <h5>
+                        {% if comment.author and comment.membership or not comment.membership and comment.author.is_staff %}
+                            <span class="font-weight-bold">{{ comment.author.username }}</span>
+                        {% else %}
+                            <span class="text-muted">Anonymous </span>
+                        {% endif %}
+                        {% if not comment.membership and not comment.author.is_staff %}
+                            <img src="{% static "events/img/no.svg" %}" width="18" height="18" class="ml-1 mr-1 d-inline-block align-top" title="Not In Event" alt="" loading="lazy">
+                        {% endif %}
+                        {% if comment.membership.is_organizer %}
+                            <img src="{% static "events/img/crown.svg" %}" width="20" height="20" class="d-inline-block align-top" title="Event Organizer" alt="" loading="lazy">
+                        {% endif %}
+                        {% if comment.membership.user.is_staff %}
+                            <img src="{% static "events/img/gear.svg" %}" width="20" height="20" class="d-inline-block align-top" title="Site Staff" alt="" loading="lazy">
+                        {% endif %}
+                        <span class="text-muted"> -- <abbr title='{{ comment.date_added }}'>{{ comment.date_added|naturaltime }}</abbr></span>
+                        {% if comment.author == user or membership.is_organizer or user.is_staff %}
+                            <a href="{% url 'events-chat-delete-comment' event_id=event.id comment_id=comment.id %}"><img class="float-right" src="{% static "events/img/delete.svg" %}" width="25" height="25" class="" title="Remove Comment" alt="Remove Comment" loading="lazy"></a>
+                        {% endif %}
+                    </h5>
+                    <p class="mt-3">{{ comment.comment|linebreaks }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if page_comments.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.previous_page_number }}">Previous</a>
+        {% endif %}
+        {% for num in page_comments.paginator.page_range %}
+            {% if page_comments.number == num %}
+                <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_comments.number|add:'-3' and num < page_comments.number|add:'3' %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.paginator.num_pages }}">Last</a>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-primary text-center" role="alert">
+            {% if event.is_locked %}
+                No comments left.
+            {% else %}
+                No comments left (yet!)
+            {% endif %}
+        </div>
+    {% endif %}
+    </div>
 {% endblock %}

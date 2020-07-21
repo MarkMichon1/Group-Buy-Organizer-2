@@ -4,6 +4,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">{{ event.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'events-event' event_id=event.id %}">Items</a></li>
             <li class="breadcrumb-item"><a href="{% url 'events-item' event_id=event.id item_id=item.id %}">{{ item.name }}</a></li>
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>

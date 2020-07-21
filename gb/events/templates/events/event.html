@@ -131,6 +131,9 @@
                         <th scope="col">Cases You've Bought</th>
                         <th scope="col">Pieces Reserved From Splits</th>
                         <th scope="col">Your Total</th>
+                        {% if membership.user.is_staff or membership.is_organizer %}
+                            <th scope="col">Delete Item</th>
+                        {% endif %}
                     </tr>
                     </thead>
                     <tbody>
@@ -180,6 +183,9 @@
                         <td class="font-weight-bold">${{ item.your_total_price }}</td>
                     {% else %}
                         <td class="text-muted">---</td>
+                    {% endif %}
+                    {% if membership.user.is_staff or membership.is_organizer %}
+                        <td><a href="{% url 'events-item-delete' event.id item.id %}"><img src="{% static "events/img/delete.svg" %}" width="20" height="20" alt="" loading="lazy"></a></td>
                     {% endif %}
                     </tr>
                     {% endfor %}

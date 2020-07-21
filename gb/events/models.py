@@ -275,7 +275,7 @@ class ItemComment(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_comments')
-    comment = models.TextField()#todo ordering
+    comment = models.TextField()
 
     class Meta:
         ordering = ('-date_added',)
@@ -284,7 +284,7 @@ class ItemComment(models.Model):
 class ItemYoutubeVideo(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
     date_added = models.DateTimeField(auto_now_add=True)
-    url = models.CharField(max_length=150) #todo ordering
+    url = models.CharField(max_length=150)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_youtube_videos')
 
     class Meta:
