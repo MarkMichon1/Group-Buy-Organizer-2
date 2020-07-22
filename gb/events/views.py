@@ -120,12 +120,13 @@ def item(request, event_id, item_id):
         form = CommentCreateForm(request.POST)
         if form.is_valid():
             comment = form.cleaned_data['comment']
-            event_comment = ItemComment(author=request.user, event=event, membership=membership, comment=comment)
+            event_comment = ItemComment(author=request.user, event=event, item=item, membership=membership,
+                                        comment=comment)
             event_comment.save()
             messages.success(request, 'Comment posted!')
-            return redirect('events-chat', event_id=event_id)
+            return redirect('events-item', event_id=event_id, item_id=item.id)
     else:
-        event_comments = EventComment.objects.filter(event=event)
+        event_comments = ItemComment.objects.filter(event=event).filter(item=item)
         paginator = Paginator(event_comments, 50)
         page_number = request.GET.get('page')
         page_comments = paginator.get_page(page_number)
@@ -139,6 +140,11 @@ def item(request, event_id, item_id):
             'title' : item.name
         }
         return render(request, 'events/item.html', context=context)
+
+
+@login_required
+def delete_item_chat(request, event_id, item_id, chat_id):
+    pass
 
 
 @login_required

@@ -158,6 +158,11 @@ class Item(models.Model):
         returned_dict = {**returned_dict, **self._core_data_fragment()}
         returned_dict['active_case_splits'] = self.case_splits.filter(is_complete=False).count()
         returned_dict = {**returned_dict, **self._your_involvement_fragment(membership=membership)}
+        comment_stats = {
+            'item_comments': self.item_comments.count(),
+            'item_youtube_videos': self.item_youtube_videos.count()
+        }
+        returned_dict = {**returned_dict, **comment_stats}
         return returned_dict
 
     def render_breakdown_view(self):
@@ -272,6 +277,7 @@ class EventComment(models.Model):
 
 class ItemComment(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    membership = models.ForeignKey(EventMembership, blank=True, null=True, on_delete=models.SET_NULL, related_name='+')
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_comments')
@@ -283,7 +289,9 @@ class ItemComment(models.Model):
 
 class ItemYoutubeVideo(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='+')
+    membership = models.ForeignKey(EventMembership, blank=True, null=True, on_delete=models.SET_NULL, related_name='+')
     date_added = models.DateTimeField(auto_now_add=True)
+    is_embeddable = models.BooleanField()
     url = models.CharField(max_length=150)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_youtube_videos')
 

@@ -14,20 +14,11 @@ import json
 import os
 from django.core.exceptions import ImproperlyConfigured
 
+from gb.secrets import get_secret
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
-
-with open(os.path.join(BASE_DIR, 'config.json')) as secrets_file:
-    secrets = json.load(secrets_file)
-
-def get_secret(setting, secrets=secrets):
-    """Get secret setting or fail with ImproperlyConfigured"""
-    try:
-        return secrets[setting]
-    except KeyError:
-        raise ImproperlyConfigured(f"Set the {setting} setting")
 
 
 # SECURITY todo revisit at deployment
