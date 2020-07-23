@@ -23,7 +23,7 @@ summary view is a concise list for the organizer of how many cases to order.  Th
 item at a time, showing all of the users who bought cases of it, as well as all of the case splits for that item.
 + **Tracking payments from attendees:** For the even
 + **Chat features:**  Talk with everyone in the group both for the event itself, and on specific item pages.
-+ **Share videos of the items:**  Post videos from your favorite items, and let everyone else see them as well.
++ **Share videos of the items:**  Post videos from your favorite items, and let everyone else see them as well.  Calls Youtube API to check if they are embeddable, and if so they become embedded.
 + **Export to PDF:** All order pages include a button to export the list as a PDF to be downloaded.  Pages are stripped 
 down and optimized, removing the navigation bar, forms, etc.  Only black and white is used on exported pages.
 

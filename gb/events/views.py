@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
-from events.forms import AddUserForm, CommentCreateForm, CreateItemForm, EventCreateForm
+from events.forms import AddUserForm, CaseBuyForm, CommentCreateForm, CreateCaseSplitForm, CreateItemForm, \
+    CreateItemYoutubeVideoForm, EventCreateForm
 from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item, ItemComment,\
                                                             ItemYoutubeVideo
-from events.view_utilities import event_auth_checkpoint
+from events.view_utilities import event_auth_checkpoint, return_qty_price_select_field,\
+    validate_and_categorize_youtube_link
 from users.models import User
 
 @login_required
@@ -116,35 +118,90 @@ def item(request, event_id, item_id):
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
 
-    if request.method == 'POST':
-        form = CommentCreateForm(request.POST)
-        if form.is_valid():
-            comment = form.cleaned_data['comment']
-            event_comment = ItemComment(author=request.user, event=event, item=item, membership=membership,
+    if 'comment_submit' in request.POST:
+        comment_form = CommentCreateForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.cleaned_data['comment']
+            item_comment = ItemComment(author=request.user, event=event, item=item, membership=membership,
                                         comment=comment)
-            event_comment.save()
+            item_comment.save()
             messages.success(request, 'Comment posted!')
             return redirect('events-item', event_id=event_id, item_id=item.id)
+    elif 'youtube_submit' in request.POST:
+        youtube_form = CreateItemYoutubeVideoForm(request.POST)
+        if youtube_form.is_valid():
+            url = youtube_form.cleaned_data['url']
+            is_valid, is_embeddable, fragment = validate_and_categorize_youtube_link(url, request)
+            if is_valid:
+                youtube_video = ItemYoutubeVideo(author=request.user, membership=membership,
+                                                 is_embeddable=is_embeddable, url=fragment, item=item)
+                youtube_video.save()
+                messages.success(request, 'Video submitted!')
+        return redirect('events-item', event_id=event_id, item_id=item.id)
+    elif 'casebuy_submit' in request.POST:
+        pass
     else:
+        # Casebuy
+        case_buy_form = CaseBuyForm()
+        case_buy_form['quantity'].choices = return_qty_price_select_field(100, item.price, item.packing,
+                                                                          whole_cases=True)
+
+        case_buy_form['quantity'].choices = [('1', 'one'), ('2', 'two')]
+        try:
+            case_buy = CaseBuy.objects.filter(membership=membership).filter(item=item)
+            case_buy_form['quantity'].initial = case_buy.quantity
+        except:
+            pass
+
+        # Chat
         event_comments = ItemComment.objects.filter(event=event).filter(item=item)
         paginator = Paginator(event_comments, 50)
         page_number = request.GET.get('page')
         page_comments = paginator.get_page(page_number)
 
         context = {
+            'case_buy_form': case_buy_form,
             'event' : event,
-            'form' : CommentCreateForm(),
+            'comment_form': CommentCreateForm(),
             'item': item,
             'membership' : membership,
             'page_comments' : page_comments,
-            'title' : item.name
+            'title' : item.name,
+            'youtube_form': CreateItemYoutubeVideoForm()
         }
         return render(request, 'events/item.html', context=context)
 
 
 @login_required
 def delete_item_chat(request, event_id, item_id, chat_id):
-    pass
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    if is_valid == False:
+        return redirect('general-home')
+    item = get_object_or_404(Item, pk=item_id)
+    comment = get_object_or_404(ItemComment, pk=chat_id)
+    if request.user == comment.author or request.user.is_staff or membership.is_organizer:
+        comment.delete()
+        messages.success(request, 'Comment deleted!')
+        return redirect('events-item', event_id=event_id, item_id=item_id)
+    else:
+        messages.warning(request, 'Access denied.')
+        return redirect('events-item', event_id=event_id, item_id=item_id)
+
+
+@login_required
+def delete_item_youtube(request, event_id, item_id, youtube_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    if is_valid == False:
+        return redirect('general-home')
+    item = get_object_or_404(Item, pk=item_id)
+    youtube_posting = get_object_or_404(ItemYoutubeVideo, pk=youtube_id)
+    if request.user == youtube_posting.author or request.user.is_staff or membership.is_organizer:
+        youtube_posting.delete()
+        messages.success(request, 'Youtube posting deleted!')
+        return redirect('events-item', event_id=event_id, item_id=item_id)
+    else:
+        messages.warning(request, 'Access denied.')
+        return redirect('events-item', event_id=event_id, item_id=item_id)
 
 
 @login_required

@@ -292,8 +292,11 @@ class ItemYoutubeVideo(models.Model):
     membership = models.ForeignKey(EventMembership, blank=True, null=True, on_delete=models.SET_NULL, related_name='+')
     date_added = models.DateTimeField(auto_now_add=True)
     is_embeddable = models.BooleanField()
-    url = models.CharField(max_length=150)
+    url = models.CharField(max_length=50)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='item_youtube_videos')
+
+    def __str__(self):
+        return f'{self.item.name} -> {self.is_embeddable} -> {self.url}'
 
     class Meta:
         ordering = ('-date_added',)

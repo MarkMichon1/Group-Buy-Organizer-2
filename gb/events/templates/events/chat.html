@@ -44,7 +44,7 @@
                         {% if comment.membership.user.is_staff %}
                             <img src="{% static "events/img/gear.svg" %}" width="20" height="20" class="d-inline-block align-top" title="Site Staff" alt="" loading="lazy">
                         {% endif %}
-                        <span class="text-muted"> -- <abbr title='{{ comment.date_added }}'>{{ comment.date_added|naturaltime }}</abbr></span>
+                        <span class="text-muted"> -- <abbr title='{{ comment.date_added }} Central'>{{ comment.date_added|naturaltime }}</abbr></span>
                         {% if comment.author == user or membership.is_organizer or user.is_staff %}
                             <a href="{% url 'events-chat-delete-comment' event_id=event.id comment_id=comment.id %}"><img class="float-right" src="{% static "events/img/delete.svg" %}" width="25" height="25" class="" title="Remove Comment" alt="Remove Comment" loading="lazy"></a>
                         {% endif %}
