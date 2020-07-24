@@ -1,5 +1,6 @@
 {% extends 'general/primary.html' %}
 {% block content %}
+    {% load crispy_forms_tags %}
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
@@ -8,18 +9,107 @@
         </ol>
     </nav>
     {% if user.display_explanations %}
-            <div class="card mt-5 mb-5">
-                <div class="card-header">
-                    <h5 class="card-title">Event Settings</h5>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        placeholder
-                    </p>
-                    <hr/>
-                    <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+        <div class="card mt-5 mb-5">
+            <div class="card-header">
+                <h5 class="card-title">Event Settings</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    This organizer only page allows you to configure the event settings.
+                </p>
+                <p class="card-text">
+                    <span class="font-weight-bold">Lock Event</span> freezes all case buys and case splits, no changes can be made.  This can be used as you're preparing to wrap up the event.  It proves especially useful if you're accounting for what each participant owes you, without the totals jumping around.  It can be re-enabled by unchecking it.
+                </p>
+                <p class="card-text">
+                    <span class="font-weight-bold">Allow users to see all event order data</span> toggles whether participants outside of organizers can see the page displaying the summary of the event, as well as the orders of other participants.  If this is disabled, the only order view participants can see will be their own order.
+                </p>
+                <p class="card-text">
+                    <span class="font-weight-bold">Close Event</span> marks an event as concluded, signalling to partipants its over.  All data and orders are permanently locked into place.  This is permanent and cannot be undone.
+                </p>
+                <p class="card-text">
+                    <span class="font-weight-bold">Delete Event</span> fully removes the event, as well as everything inside of it.  This is permanent and cannot be undone.
+                </p>
+                <hr/>
+                <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+            </div>
+        </div>
+    {% endif %}
+    {% if not event.is_closed %}
+        <div class="row justify-content-center">
+            <div class="col-8">
+                <div class="card mb-5 mt-5">
+                    <form class="m-3" method="post">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ form|crispy }}
+                        </fieldset>
+                        <button type="submit" value="Submit" class="btn btn-primary">Update Event</button>
+                    </form>
                 </div>
             </div>
+        </div>
+    {% else %}
+        <div class="alert alert-primary text-center" role="alert">
+            This event has closed.  Event settings have been locked.
+        </div>
     {% endif %}
-    have mt-5 here for nav (?)
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card mb-5 mt-5 border-danger">
+                <div class="card-header">
+                    <h5 class="card-title">Danger Zone</h5>
+                </div>
+                <div class="card-body">
+                    {% if not event.is_closed %}
+                        <button type="button" class="btn btn-primary m-2" data-toggle="modal" data-target="#closeModal">
+                            Close Event
+                        </button>
+                    {% endif %}
+                    <button type="button" class="btn btn-danger m-2" data-toggle="modal" data-target="#deleteModal">
+                        Delete Event
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="closeModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Close {{ event.name }}?</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to close this event?  This will signal the event as concluded and lock in all data... this cannot be undone!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary m-1" href="{% url 'events-close' event.id %}" role="button">Close Event</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete {{ event.name }}?</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this event?  All data contained will be permanently removed... this cannot be undone!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-outline-danger m-1" href="{% url 'events-delete' event.id %}" role="button">Delete Event</a>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

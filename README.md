@@ -35,6 +35,7 @@ down and optimized, removing the navigation bar, forms, etc.  Only black and whi
 + **Mobile Responsiveness:**  The app will look just as great on mobile screens as it will as a desktop app.
 + **Timezones:**  Allow the user to set their own time zone on their profile page, dynamically changing all times displayed in the templates.
 + **Added Email alerts:**  Optional email alerts for important events such as case splits opening.
++ **Tiered Pricing:**  Some wholesalers offer discounts at a certain case count, or total amount.  This will dynamically change the item pricing if these conditions are met.
 
 MIT License
 

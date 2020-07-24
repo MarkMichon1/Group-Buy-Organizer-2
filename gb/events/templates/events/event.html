@@ -68,56 +68,56 @@
             This event has been locked by the event organizers.  This is usually done in preparation of wrapping everything up.  All case buys and case splits have been locked and cannot be changed.  Event chat still works.
         </div>
     {% endif %}
-    {% if not event.is_locked %}
-        <div class="row justify-content-around">
+    <div class="row justify-content-around">
+        {% if not event.is_locked and not event.is_closed %}
             <div class="col-6">
-                <div class="card mt-5 mb-5">
-                    <div class="card-header">
-                        <h3 class="card-title">Create New Item</h3>
-                    </div>
-                    <div class="card-body">
-                        <form method ='POST'>
-                            {% csrf_token %}
-                            <fieldset class="form-group">
-                                {{ form|crispy }}
-                            </fieldset>
-                            <div class="form-group">
-                                <button class="btn btn-info" type="submit">Create</button>
-                            </div>
-                        </form>
-                    </div>
+            <div class="card mt-5 mb-5">
+                <div class="card-header">
+                    <h3 class="card-title">Create New Item</h3>
+                </div>
+                <div class="card-body">
+                    <form method ='POST'>
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ form|crispy }}
+                        </fieldset>
+                        <div class="form-group">
+                            <button class="btn btn-info" type="submit">Create</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="col-6">
-                <div class="card mb-5 mt-5">
-                    <div class="card-header">
-                        <h3 class="card-title">Event Panel</h3>
-                    </div>
-                    <div class="card-body">
-                        <a class="btn btn-success m-2" href="{% url 'events-chat' event.id %}" role="button">
-                            {% if event.get_total_comments == 1 %}
-                                <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
-                            {% else %}
-                                <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
-                            {% endif %}
-                            Event Chat
-                        </a>
-                        <a class="btn btn-success m-2" href="#" role="button">My Order</a>
-                        {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
-                            <a class="btn btn-info m-2" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
-                            <a class="btn btn-info m-2" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
+        {% endif %}
+        </div>
+        <div class="col-6">
+            <div class="card mb-5 mt-5">
+                <div class="card-header">
+                    <h3 class="card-title">Event Panel</h3>
+                </div>
+                <div class="card-body">
+                    <a class="btn btn-success m-2" href="{% url 'events-chat' event.id %}" role="button">
+                        {% if event.get_total_comments == 1 %}
+                            <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="1 Comment" alt="" loading="lazy">
+                        {% else %}
+                            <img src="{% static "events/img/dialogue.svg" %}" width="20" height="20" title="{{ event.get_total_comments }} Comments" alt="" loading="lazy">
                         {% endif %}
-                        <button type="button" class="btn btn-warning m-2" data-toggle="modal" data-target="#leaveModal">
-                            Leave Event
-                        </button>
-                    </div>
+                        Event Chat
+                    </a>
+                    <a class="btn btn-success m-2" href="#" role="button">My Order</a>
+                    {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
+                        <a class="btn btn-info m-2" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
+                        <a class="btn btn-info m-2" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
+                    {% endif %}
+                    <button type="button" class="btn btn-warning m-2" data-toggle="modal" data-target="#leaveModal">
+                        Leave Event
+                    </button>
                 </div>
             </div>
         </div>
-    {% endif %}
+    </div>
     {% if event_data.item_groups %}
-        {% for item_group in event_data.item_groups %}
-            <div class="container mb-4">
+        <div class="container">
+            {% for item_group in event_data.item_groups %}
                 <h3>{{ item_group.0 }}</h3>
                 <hr/>
                 <table class="table table-hover mt-5">
@@ -126,11 +126,11 @@
                         <th scope="col">Item Name</th>
                         <th scope="col">Packing</th>
                         <th scope="col">Case Price</th>
-                        <th scope="col">Price Per Piece</th>
+                        <th scope="col">Price / Piece</th>
                         <th scope="col">Active Case Splits</th>
-                        <th scope="col">Cases You've Bought</th>
-                        <th scope="col">Pieces Reserved From Splits</th>
-                        <th scope="col">Your Total</th>
+                        <th scope="col">Cases Reserved</th>
+                        <th scope="col">Pieces Reserved</th>
+                        <th scope="col">Item Total</th>
                         {% if membership.user.is_staff or membership.is_organizer %}
                             <th scope="col">Delete Item</th>
                         {% endif %}
@@ -145,21 +145,21 @@
                         {% endif %}
                     <th scope="row">
                         <a href="{% url 'events-item' event.id item.id %}">{{ item.name }}</a>
-                    {% if item.item_youtube_videos %}
-                        {% if item.item_youtube_videos == 1 %}
-                            <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="1 Youtube Video" alt="" loading="lazy">
-                        {% else %}
-                            <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="{{ item.item_youtube_videos}} Youtube Videos" alt="" loading="lazy">
+                        {% if item.item_youtube_videos %}
+                            {% if item.item_youtube_videos == 1 %}
+                                <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="1 Youtube Video" alt="" loading="lazy">
+                            {% else %}
+                                <img src="{% static "events/img/youtube.svg" %}" class="ml-1 d-inline-block align-top" width="15" height="15" title="{{ item.item_youtube_videos}} Youtube Videos" alt="" loading="lazy">
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                    {% if item.item_comments %}
-                        {% if item.item_comments == 1 %}
-                            <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="1 Item Comment" alt="" loading="lazy">
+                        {% if item.item_comments %}
+                            {% if item.item_comments == 1 %}
+                                <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="1 Item Comment" alt="" loading="lazy">
+                            {% else %}
+                                <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="{{ item.item_comments }} Item Comments" alt="" loading="lazy">
+                            {% endif %}
                         {% else %}
-                            <img src="{% static "events/img/dialogue.svg" %}" class="ml-1 d-inline-block align-top" width="18" height="18" title="{{ item.item_comments }} Item Comments" alt="" loading="lazy">
                         {% endif %}
-                    {% else %}
-                    {% endif %}
                     </th>
                     <td>{{ item.packing }} / 1</td>
                     <td>${{ item.case_price }}</td>
@@ -191,11 +191,11 @@
                     {% endfor %}
                     </tbody>
                 </table>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     {% else %}
         <div class="alert alert-info text-center" role="alert">
-            {% if event.is_locked %}
+            {% if event.is_locked or event.is_closed %}
                 No items were created for this event.
             {% else %}
                 No items created (yet!)... use the <span class="font-weight-bold">Item Panel</span> above to get started.

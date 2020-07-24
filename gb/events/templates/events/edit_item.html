@@ -1,5 +1,6 @@
 {% extends 'general/primary.html' %}
 {% block content %}
+    {% load crispy_forms_tags %}
     <nav>
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'general-home' %}">Home</a></li>
@@ -8,5 +9,32 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    MT5
+    {% if user.display_explanations %}
+        <div class="card mt-5">
+            <div class="card-header">
+                <h5 class="card-title">Edit Item</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    This is an organizer only view that allows you to edit the item.  Simply change whatever values and press update.  <span class="font-weight-bold">Please be aware</span> that changing the case packing will remove all case splits that exist for this item.
+                </p>
+
+                <hr/>
+                <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="card mb-5 mt-5">
+                    <form class="m-3" method="post">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ form|crispy }}
+                        </fieldset>
+                        <button type="submit" value="Submit" class="btn btn-primary">Update Item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
 {% endblock %}

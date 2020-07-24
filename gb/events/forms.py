@@ -2,7 +2,7 @@ from django import forms
 
 from datetime import datetime
 
-from events.models import Item, ItemYoutubeVideo
+from events.models import Event, Item, ItemYoutubeVideo
 
 
 class EventCreateForm(forms.Form):
@@ -20,7 +20,7 @@ class AddUserForm(forms.Form):
     username = forms.CharField(label='Username To Add To Event:', widget=forms.TextInput(attrs={'placeholder': 'Add username here...'}))
 
 
-class CreateItemForm(forms.ModelForm):
+class ItemForm(forms.ModelForm):
 
     class Meta:
         model = Item
@@ -41,9 +41,41 @@ class CreateItemYoutubeVideoForm(forms.ModelForm):
         }
 
 
-class CaseBuyForm(forms.Form):
+class QuantitySelectForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.max_pieces = kwargs.pop('max_pieces')
+        self.item_price = kwargs.pop('item_price')
+        self.item_packing = kwargs.pop('item_packing')
+        self.whole_cases = kwargs.pop('whole_cases')
+        self.initial_qty = kwargs.pop('initial_qty')
+        super(QuantitySelectForm, self).__init__(*args, **kwargs)
+
+        def return_qty_price_select_field(self):
+            choices_list = []
+            if self.whole_cases == False:
+                for i in range(self.max_pieces):
+                    choices_list.append(
+                        (i + 1,
+                         f'{i + 1}/{self.item_packing} -- ${round((i + 1) * (self.item_price / self.item_packing), 2)}'))
+            else:
+                for i in range(self.max_pieces):
+                    choices_list.append((i, f'{i} -- ${round(i * self.item_price, 2)}'))
+            return choices_list
+
+        self.fields['quantity'] = forms.ChoiceField(choices=return_qty_price_select_field(self), initial=self.initial_qty)
+
     quantity = forms.ChoiceField()
 
 
-class CreateCaseSplitForm(forms.Form):
-    piece_quantity = forms.ChoiceField()
+class EventSettingsForm(forms.ModelForm):
+
+    class Meta:
+        model = Event
+        fields = ['name', 'description', 'is_locked', 'users_full_event_visibility', 'extra_charges']
+        labels = {
+            'name': 'Event Name',
+            'description': 'Event Description',
+            'is_locked': 'Lock Event',
+            'users_full_event_visibility': 'Allow users to see all event order data (summary, orders of others)',
+            'extra_charges': "Extra charges for event.  Will be distributed proportionately to the size of everyone's order:"
+        }

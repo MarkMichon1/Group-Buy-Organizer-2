@@ -3,12 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
-from events.forms import AddUserForm, CaseBuyForm, CommentCreateForm, CreateCaseSplitForm, CreateItemForm, \
-    CreateItemYoutubeVideoForm, EventCreateForm
+from events.forms import AddUserForm, QuantitySelectForm, CommentCreateForm, ItemForm, CreateItemYoutubeVideoForm, \
+    EventCreateForm, EventSettingsForm
 from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item, ItemComment,\
-                                                            ItemYoutubeVideo
-from events.view_utilities import event_auth_checkpoint, return_qty_price_select_field,\
-    validate_and_categorize_youtube_link
+    ItemYoutubeVideo
+from events.view_utilities import event_auth_checkpoint, validate_and_categorize_youtube_link
 from users.models import User
 
 @login_required
@@ -40,10 +39,9 @@ def event(request, event_id):
     event_data = event.generate_event_pages_contents(page_type='event', membership=membership)
 
     if request.method == 'POST':
-        form = CreateItemForm(request.POST)
+        form = ItemForm(request.POST)
         if form.is_valid():
             new_item = form.save(commit=False)
-            # form.data['added_by'] = request.user -- added_by, name, price, packing, event, category
             new_item.added_by = membership
             new_item.event = event
             new_item.save()
@@ -54,7 +52,7 @@ def event(request, event_id):
             'event_data' : event_data,
             'title' : event.name,
             'event' : event,
-            'form': CreateItemForm(),
+            'form': ItemForm(),
             'membership' : membership
         }
         return render(request, 'events/event.html', context=context)
@@ -65,11 +63,37 @@ def event_settings(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
     if is_valid == False:
         return redirect('general-home')
-    context = {
-        'event' : event,
-        'title' : f'Event Settings'
-    } #
-    return render(request, 'events/event_settings.html', context=context)
+    if request.method == 'POST':
+        form = EventSettingsForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Event updated!")
+            return redirect('events-settings', event_id=event.id)
+    else:
+        form = EventSettingsForm(initial={'name':event.name,
+                                 'description': event.description,
+                                 'is_locked':event.is_locked,
+                                 'users_full_event_visibility':event.users_full_event_visibility,
+                                 'extra_charges': event.extra_charges
+                                 })
+        context = {
+            'event': event,
+            'form': form,
+            'title': 'Event Settings'
+        }
+        return render(request, 'events/event_settings.html', context=context)
+
+
+@login_required
+def close_event(request, event_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
+    if is_valid == False:
+        return redirect('general-home')
+    event.is_closed = True
+    event.save()
+    messages.success(request, "Event closed!")
+    return redirect('events-event', event_id=event.id)
+    # make event closed, add metrics to instance, redirect to event
 
 
 @login_required
@@ -91,6 +115,7 @@ def leave_event(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
     if is_valid == False:
         return redirect('general-home')
+        #todo change splits
     membership.delete()
     messages.success(request, 'You have left the event!')
     return redirect('general-home')
@@ -118,6 +143,13 @@ def item(request, event_id, item_id):
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
 
+    try:
+        case_buy = CaseBuy.objects.filter(membership=membership).filter(item=item).get()
+        initial_qty = case_buy.quantity
+    except:
+        case_buy = None
+        initial_qty = 0
+
     if 'comment_submit' in request.POST:
         comment_form = CommentCreateForm(request.POST)
         if comment_form.is_valid():
@@ -139,19 +171,36 @@ def item(request, event_id, item_id):
                 messages.success(request, 'Video submitted!')
         return redirect('events-item', event_id=event_id, item_id=item.id)
     elif 'casebuy_submit' in request.POST:
+        case_buy_form = QuantitySelectForm(request.POST, max_pieces=100, item_price=item.price,
+                                           item_packing=item.packing, whole_cases=True, initial_qty=initial_qty)
+        if case_buy_form.is_valid():
+            quantity = case_buy_form.cleaned_data['quantity']
+            if case_buy:
+                    if int(quantity) == 0:
+                        case_buy.delete()
+                    else:
+                        case_buy.quantity = quantity
+                        case_buy.save()
+            else:
+                case_buy = CaseBuy(item=item, user=request.user, event=event, membership=membership, quantity=quantity)
+                case_buy.save()
+            messages.success(request, 'Quantity updated!')
+            return redirect('events-item', event_id=event_id, item_id=item.id)
+    elif 'casesplit_submit' in request.POST:
         pass
     else:
-        # Casebuy
-        case_buy_form = CaseBuyForm()
-        case_buy_form['quantity'].choices = return_qty_price_select_field(100, item.price, item.packing,
-                                                                          whole_cases=True)
+        # Statistics 'Slice'
+        item_data = item.render_event_view(membership=membership)
 
-        case_buy_form['quantity'].choices = [('1', 'one'), ('2', 'two')]
-        try:
-            case_buy = CaseBuy.objects.filter(membership=membership).filter(item=item)
-            case_buy_form['quantity'].initial = case_buy.quantity
-        except:
-            pass
+        # Case Buy
+        case_buy_form = QuantitySelectForm(max_pieces=100, item_price=item.price, item_packing=item.packing,
+                                           whole_cases=True, initial_qty=initial_qty)
+        if event.is_locked or event.is_closed:
+            case_buy_form.fields['quantity'].disabled = True
+
+        # Case Split
+        case_split_form = QuantitySelectForm(max_pieces=item.packing - 1, item_price=item.price,
+                                             item_packing=item.packing, whole_cases=False, initial_qty=1)
 
         # Chat
         event_comments = ItemComment.objects.filter(event=event).filter(item=item)
@@ -159,11 +208,14 @@ def item(request, event_id, item_id):
         page_number = request.GET.get('page')
         page_comments = paginator.get_page(page_number)
 
+
         context = {
             'case_buy_form': case_buy_form,
+            'case_split_form': case_split_form,
             'event' : event,
             'comment_form': CommentCreateForm(),
             'item': item,
+            'item_data': item_data,
             'membership' : membership,
             'page_comments' : page_comments,
             'title' : item.name,
@@ -210,12 +262,30 @@ def edit_item(request, event_id, item_id):
     if is_valid == False:
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
-    context = {
-        'event': event,
-        'item': item,
-        'title': f'Edit {item.name}'
-    }
-    return render(request, 'general/object_create_update.html', context=context)
+    if request.method == 'POST':
+        old_packing = item.packing
+        form = ItemForm(request.POST, instance=item)
+        if form.is_valid():
+            modified_item = form.save()
+            if old_packing != modified_item.packing:
+                modified_item.case_splits.all().delete()
+            modified_item.save()
+            messages.success(request, "Item updated!")
+            return redirect('events-item', event_id=event.id, item_id=item.id)
+
+    else:
+        form = ItemForm(initial={'category':item.category,
+                                 'name': item.name,
+                                 'price':item.price,
+                                 'packing':item.packing
+                                 })
+        context = {
+            'event': event,
+            'form': form,
+            'item': item,
+            'title': f'Edit {item.name}'
+        }
+        return render(request, 'events/edit_item.html', context=context)
 
 
 @login_required

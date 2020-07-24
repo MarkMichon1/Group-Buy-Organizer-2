@@ -8,6 +8,7 @@ urlpatterns = [
     path('create/', views.create_event, name='events-create'),
     path('<uuid:event_id>/', views.event, name='events-event'),
     path('<uuid:event_id>/settings/', views.event_settings, name='events-settings'),
+    path('<uuid:event_id>/close/', views.close_event, name='events-close'),
     path('<uuid:event_id>/delete/', views.delete_event, name='events-delete'),
     path('<uuid:event_id>/item/<uuid:item_id>/', views.item, name='events-item'),
     path('<uuid:event_id>/item/<uuid:item_id>/edit/', views.edit_item, name='events-item-edit'),

@@ -49,17 +49,3 @@ def validate_and_categorize_youtube_link(url, request):
     else:
         is_embeddable = to_dict['items'][0]['status']['embeddable']
         return True, is_embeddable, youtube_id
-
-
-def return_qty_price_select_field(max_pieces, item_price, item_packing, whole_cases=False):
-    '''Taking in the item price, item packing, and maximum allowable pieces, this will return a nicely formatted list
-    for Django's ChoiceField, which displays the total piece sum next to the piece count.'''
-
-    choices_list = []
-    if whole_cases == False:
-        for i in range(max_pieces):
-            choices_list.append((i + 1, f'{i + 1}/{item_packing} - ${round((i + 1) * (item_price / item_packing), 2)}'))
-    else:
-        for i in range(max_pieces):
-            choices_list.append((i , f'{i} - ${round(i * item_price, 2)}'))
-    return choices_list

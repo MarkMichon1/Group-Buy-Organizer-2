@@ -10,7 +10,7 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    {% if not event.is_locked %}
+    {% if not event.is_closed %}
         <div class="row justify-content-center">
             <div class="col-10">
                 <div class="card mb-5 mt-5">
@@ -70,8 +70,8 @@
             <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.paginator.num_pages }}">Last</a>
         {% endif %}
     {% else %}
-        <div class="alert alert-primary text-center" role="alert">
-            {% if event.is_locked %}
+        <div class="alert alert-primary text-center mt-5 mb-5" role="alert">
+            {% if event.is_closed %}
                 No comments left.
             {% else %}
                 No comments left (yet!)

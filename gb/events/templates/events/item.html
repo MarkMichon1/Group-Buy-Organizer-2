@@ -19,13 +19,13 @@
             </div>
             <div class="card-body">
                 <p class="card-text">
-                    This is where all of the magic happens in event.  This is where you actively reserve full cases for yourself, or partipate in case splits.
+                    This is where all of the magic happens in events.  On this page, you actively reserve full cases for yourself, or partipate in case splits.
                 </p>
                 <p class="card-text">
-                    Case buys are pretty straight forward.  Use the dropdown menu to select how many full cases you'd be interested in reserving, and press submit.  If you ever change your mind and feel like changing the quantity, you're free to as long as the event is open.
+                    <span class="font-weight-bold">Case buys</span> are pretty straight forward.  Use the dropdown menu to select how many full cases you'd be interested in reserving, and press submit.  If you ever change your mind and feel like changing the quantity, you're free to as long as the event is open.  Setting the quantity to zero will remove any and all case reservations.
                 </p>
                 <p class="card-text">
-                    Case splits are when you share a case with one or more other users.  If and only if all of the pieces in the case are reserved, the case will be "committed" and locked into your order.  That means any case splits that don't have every item in the case reserved by the end of the group buy event will not be locked in.  Please note that you or anyone can pull out of a split while the event is open, and that once again removes the split from all other partipants until or unless it gets filled again.
+                    <span class="font-weight-bold">Case splits</span> are when you share a case with one or more other users.  If and only if all of the pieces in the case are reserved, the case will be "committed" and locked into your order.  That means any case splits that don't have every item in the case reserved by the end of the group buy event will not be locked in.  Please note that you or anyone can pull out of a split while the event is open, and that once again removes the split from all other partipants until or unless it gets filled again.
                 </p>
                 <p class="card-text">
                     There is also a feature to post Youtube videos of the product.  Simply paste the URL in and press submit.  If the video can be embedded it will be, otherwise the link will remain.
@@ -39,30 +39,89 @@
         </div>
     {% endif %}
     {% if membership.is_organizer or membership.user.is_staff %}
-        item edit card form here
+        {% if not event.is_closed and not event.is_locked %}
+            <div class="container text-center">
+                <a class="btn btn-primary mb-5 mt-5" href="{% url 'events-item-edit' event.id item.id %}" role="button">Edit Item</a>
+            </div>
+        {% endif %}
     {% endif %}
     <div>
-        event item slice, minus item name
+        <table class="table table-hover mt-5 mb-5">
+            <thead>
+            <tr>
+                <th scope="col">Packing</th>
+                <th scope="col">Case Price</th>
+                <th scope="col">Price / Piece</th>
+                <th scope="col">Active Case Splits</th>
+                <th scope="col">Cases Reserved</th>
+                <th scope="col">Pieces Reserved</th>
+                <th scope="col">Item Total</th>
+                {% if membership.user.is_staff or membership.is_organizer %}
+                    <th scope="col">Delete Item</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% if item_data.are_active %}
+                <tr class="table-success">
+                    {% else %}
+                <tr>
+            {% endif %}
+            <td>{{ item_data.packing }} / 1</td>
+            <td>${{ item_data.case_price }}</td>
+            <td>${{ item_data.piece_price }}</td>
+            {% if item_data.active_case_splits > 0 %}
+                <td class="font-weight-bold">{{ item_data.active_case_splits|length}}</td>
+            {% else %}
+                <td class="text-muted">---</td>
+            {% endif %}
+            {% if item_data.cases_you_bought > 0 %}
+                <td class="font-weight-bold">{{ item_data.cases_you_bought }}</td>
+            {% else %}
+                <td class="text-muted">---</td>
+            {% endif %}
+            {% if item_data.pieces_reserved_from_splits > 0 %}
+                <td class="font-weight-bold">{{ item_data.pieces_reserved_from_splits }}</td>
+            {% else %}
+                <td class="text-muted">---</td>
+            {% endif %}
+            {% if item_data.your_total_price > 0 %}
+                <td class="font-weight-bold">${{ item_data.your_total_price }}</td>
+            {% else %}
+                <td class="text-muted">---</td>
+            {% endif %}
+            {% if membership.user.is_staff or membership.is_organizer %}
+                <td><a href="{% url 'events-item-delete' event.id item_data.id %}"><img src="{% static "events/img/delete.svg" %}" width="20" height="20" alt="" loading="lazy"></a></td>
+            {% endif %}
+            </tr>
+            </tbody>
+        </table>
     </div>
     <h3>Reserve Whole Cases</h3>
     <hr>
     <div>
-        whole cases  Use this form to update how many whole cases you'd like to order.
-        {% if not event.is_locked %}
-            <div class="row justify-content-center">
-                <div class="col-5">
-                    <div class="card mb-5 mt-5">
-                        <form class="m-3" method="post">
-                            {% csrf_token %}
-                            <fieldset class="form-group">
-                                {{ case_buy_form|crispy }}
-                            </fieldset>
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="card mb-5 mt-5">
+                    {% if event.is_closed or event.is_locked %}
+                        <span class="mx-auto text-muted mt-3 ml-3">This form is disabled when the event is locked or closed.</span>
+                    {% else %}
+                        <span class="mx-auto text-muted mt-3 ml-3">Use this form to update how many whole cases you'd like to reserve.</span>
+                    {% endif %}
+                    <form class="m-3" method="post">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            {{ case_buy_form|crispy }}
+                        </fieldset>
+                        {% if event.is_closed or event.is_locked %}
+                            <button type="button" class="btn btn-primary" disabled>Update Quantity</button>
+                        {% else %}
                             <button type="submit" value="Submit" name="casebuy_submit" class="btn btn-primary">Update Quantity</button>
-                        </form>
-                    </div>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
-        {% endif %}
+        </div>
     </div>
     <h3>Case Splits</h3>
     <hr>
@@ -72,7 +131,7 @@
     <h3>Item Youtube Videos</h3>
     <hr>
     <div>
-        {% if not event.is_locked %}
+        {% if not event.is_closed %}
             <div class="row justify-content-center">
                 <div class="col-10">
                     <div class="card mb-5 mt-5">
@@ -124,7 +183,7 @@
             </ul>
         {% else %}
             <div class="alert alert-primary text-center mt-5 mb-5" role="alert">
-                {% if event.is_locked %}
+                {% if event.is_closed %}
                     No Youtube videos posted.
                 {% else %}
                     No Youtube videos posted (yet!)
@@ -135,7 +194,7 @@
     <h3>Item Comments</h3>
     <hr>
     <div>
-        {% if not event.is_locked %}
+        {% if not event.is_closed %}
             <div class="row justify-content-center">
                 <div class="col-10">
                     <div class="card mb-5 mt-5">
@@ -196,7 +255,7 @@
             {% endif %}
         {% else %}
             <div class="alert alert-primary text-center" role="alert">
-                {% if event.is_locked %}
+                {% if event.is_closed %}
                     No item comments left.
                 {% else %}
                     No item comments left (yet!)

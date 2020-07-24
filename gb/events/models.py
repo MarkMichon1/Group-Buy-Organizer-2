@@ -186,7 +186,7 @@ class Item(models.Model):
     def _your_involvement_fragment(self, membership, is_my_order=False):
         new_dict = {}
         cases_you_bought = 0
-        case_buys = CaseBuy.objects.filter(membership=membership)
+        case_buys = CaseBuy.objects.filter(membership=membership).filter(item=self)
         for case_buy in case_buys:
             cases_you_bought += case_buy.quantity
         new_dict['cases_you_bought'] = cases_you_bought
@@ -250,6 +250,7 @@ class CasePieceCommit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     quantity = models.SmallIntegerField(null=False)
+    date_created = models.DateTimeField(auto_now_add=True)
     membership = models.ForeignKey(EventMembership, on_delete=models.CASCADE, related_name='split_commits')
     case_split = models.ForeignKey(CaseSplit, on_delete=models.CASCADE, related_name='split_commits')
 
