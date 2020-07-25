@@ -53,10 +53,11 @@
                 </fieldset>
                 <div class="form-group">
                     <button class="btn btn-outline-info" type="submit">Login</button>
+                    <small class="text-muted"><a class="ml-2" href="{% url 'password_reset' %}">Forgot Password?</a></small>
                 </div>
             </form>
             <div class="border-top pt-3">
-                <small class="text-muted">Need an account? <a class="ml-2" href="{% url 'register' %}">Sign Up Here</a></small>
+                <small class="text-muted">Need an account?  <a class="ml-2" href="{% url 'register' %}">Sign Up Here</a></small>
             </div>
         </div>
     </div>

@@ -19,7 +19,7 @@
                         <fieldset class="form-group">
                             {{ form|crispy }}
                         </fieldset>
-                        <button type="submit" value="Submit" class="btn btn-primary">Comment</button>
+                        <button type="submit" value="Submit" class="btn btn-info">Comment</button>
                     </form>
                 </div>
             </div>
@@ -70,7 +70,7 @@
             <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.paginator.num_pages }}">Last</a>
         {% endif %}
     {% else %}
-        <div class="alert alert-primary text-center mt-5 mb-5" role="alert">
+        <div class="alert alert-info text-center mt-5 mb-5" role="alert">
             {% if event.is_closed %}
                 No comments left.
             {% else %}

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from events import pdf_views, views
 
 urlpatterns = [
     path('<uuid:event_id>/chat/', views.chat, name='events-chat'),
@@ -20,9 +20,12 @@ urlpatterns = [
     path('<uuid:event_id>/manage-payments/', views.manage_payments, name='events-manage-payments'),
     path('<uuid:event_id>/manage-users/', views.manage_users, name='events-manage-users'),
     path('<uuid:event_id>/my-order/<uuid:user_id>/', views.my_order, name='events-my-order'),
+    path('<uuid:event_id>/my-order/<uuid:user_id>/pdf/', pdf_views.my_order_pdf, name='events-my-order-pdf'),
     path('<uuid:event_id>/order-breakdown/', views.order_breakdown, name='events-order-breakdown'),
+    path('<uuid:event_id>/order-breakdown/pdf/', pdf_views.order_breakdown_pdf, name='events-order-breakdown-pdf'),
     path('<uuid:event_id>/remove-participant/<uuid:user_id>/', views.remove_participant, name='events-remove-participant'),
     path('<uuid:event_id>/summary/', views.event_order_summary, name='events-order-summary'),
+    path('<uuid:event_id>/summary/pdf/', pdf_views.event_order_summary_pdf, name='events-order-summary-pdf'),
     path('<uuid:event_id>/toggle-organizer/<uuid:user_id>/', views.toggle_organizer, name='events-toggle-organizer'),
     path('<uuid:event_id>/toggle-payment/<int:target_membership_id>/', views.toggle_payment, name='events-toggle-payment')
 ]

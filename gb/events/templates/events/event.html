@@ -103,7 +103,7 @@
                         {% endif %}
                         Event Chat
                     </a>
-                    <a class="btn btn-success m-2" href="#" role="button">My Order</a>
+                    <a class="btn btn-success m-2" href="{% url 'events-my-order' membership.event.id user.id %}" role="button">My Order</a>
                     {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
                         <a class="btn btn-info m-2" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
                         <a class="btn btn-info m-2" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
@@ -198,7 +198,7 @@
             {% if event.is_locked or event.is_closed %}
                 No items were created for this event.
             {% else %}
-                No items created (yet!)... use the <span class="font-weight-bold">Item Panel</span> above to get started.
+                No items created (yet!)... use the <span class="font-weight-bold">Create New Item</span> panel above to get started.
             {% endif %}
         </div>
     {% endif %}

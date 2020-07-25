@@ -1,3 +1,5 @@
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox
 from django import forms
 
 from datetime import datetime
@@ -6,11 +8,29 @@ from events.models import Event, Item, ItemYoutubeVideo
 
 
 class EventCreateForm(forms.Form):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(EventCreateForm, self).__init__(*args, **kwargs)
+
+        if user.night_mode_enabled:
+            data_theme = 'dark'
+        else:
+            data_theme = 'light'
+
+        self.fields['captcha'] = ReCaptchaField(
+            widget=ReCaptchaV2Checkbox(
+                attrs={
+                    'data-theme': f'{data_theme}'
+                }
+            )
+        )
+
     current_year = datetime.now().year
     name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': f'Big Fireworks Spring '
                                                                                         f'{current_year} Group Buy'}))
     description = forms.CharField(required= False, widget=forms.TextInput(attrs={'placeholder': f'Looking forward to '
                                                        f'another fun year!  Deadline for orders: 5/31/{current_year}'}))
+    captcha = ReCaptchaField()
 
 class CommentCreateForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(attrs={'placeholder' : 'Your comment here...'}))

@@ -29,13 +29,15 @@ down and optimized, removing the navigation bar, forms, etc.  Only black and whi
 
 **Secondary features:**
 + **Blog Page:**  With posts only able to be made by staff site members, you have a place to release site updates for all users and guests to see.
-+ **Email Functionality:** Send both activation emails and password reset emails, 
++ **Email Functionality:** Send both activation emails and password reset emails.
++ **reCAPTCHA support:**  Built in anti-bot protection on user registration, login, and event creation forms.
 
 **Next on roadmap:**
 + **Mobile Responsiveness:**  The app will look just as great on mobile screens as it will as a desktop app.
 + **Timezones:**  Allow the user to set their own time zone on their profile page, dynamically changing all times displayed in the templates.
 + **Added Email alerts:**  Optional email alerts for important events such as case splits opening.
 + **Tiered Pricing:**  Some wholesalers offer discounts at a certain case count, or total amount.  This will dynamically change the item pricing if these conditions are met.
++ **Brute Force Protection:** Built in measures to protect nasty bots from trying to brute force into accounts.
 
 MIT License
 

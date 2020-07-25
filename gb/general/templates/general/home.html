@@ -95,7 +95,6 @@
                         <th scope="col">Active Case Splits</th>
                         {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
                             <th scope="col">Total Cases Reserved</th>
-                            <th scope="col">Total Case Cost</th>
                         {% endif %}
                         <th scope="col">Added Charges</th>
                     </tr>
@@ -105,7 +104,6 @@
                         <td>{{ membership.event.get_active_participants }}</td>
                         <td>{{ membership.event.get_active_case_splits }}</td>
                         {% if membership.is_organizer or membership.event.users_can_see_master_overview %}
-                            <td>{{ membership.event.get_total_cases }}</td>
                             <td>{{ membership.event.get_event_total }}</td>
                         {% endif %}
                         <td>${{ membership.event.extra_charges }}</td>
@@ -116,13 +114,13 @@
             </div>
             {% endfor %}
         {% else %}
-            <div class="alert alert-light text-center" role="alert">
+            <div class="alert alert-info text-center" role="alert">
                 There are no group buy events available to you.  Either <a href="{% url 'events-create' %}">create one
                 yourself</a>, or have someone invite you to theirs with your username.
             </div>
         {% endif %}
     {% else %}
-        <div class="alert alert-light text-center" role="alert">
+        <div class="alert alert-info text-center" role="alert">
             Welcome to Group Buy Organizer!  Please log in or register to use the application, or click "About" or
             "Updates" to learn more.
         </div>

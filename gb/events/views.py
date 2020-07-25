@@ -8,6 +8,7 @@ from events.forms import AddUserForm, QuantitySelectForm, CommentCreateForm, Ite
 from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item, ItemComment,\
     ItemYoutubeVideo
 from events.view_utilities import event_auth_checkpoint, validate_and_categorize_youtube_link
+from general.models import Instance
 from users.models import User
 
 @login_required
@@ -25,7 +26,7 @@ def create_event(request):
             return redirect('general-home')
     else:
         context = {
-            'form' : EventCreateForm(),
+            'form' : EventCreateForm(user=request.user),
             'title' : 'New Event'
         }
         return render(request, 'events/create_event.html', context=context)
@@ -91,6 +92,9 @@ def close_event(request, event_id):
         return redirect('general-home')
     event.is_closed = True
     event.save()
+    instance = Instance.objects.get()
+    instance.total_cases_reserved += event.get_total_cases()
+    instance.save()
     messages.success(request, "Event closed!")
     return redirect('events-event', event_id=event.id)
     # make event closed, add metrics to instance, redirect to event
@@ -115,7 +119,9 @@ def leave_event(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
     if is_valid == False:
         return redirect('general-home')
-        #todo change splits
+    for commit in membership.split_commits:
+        commit.case_split.is_complete = False
+        commit.case_split.save()
     membership.delete()
     messages.success(request, 'You have left the event!')
     return redirect('general-home')
@@ -407,6 +413,9 @@ def remove_participant(request, event_id, user_id):
     if request.user.is_staff or membership.is_creator:
         target_membership = EventMembership.objects.get(user__id=user_id, event__id=event_id)
         username = target_membership.user.username
+        for commit in target_membership.split_commits:
+            commit.case_split.is_complete = False
+            commit.case_split.save()
         target_membership.delete()
         messages.success(request, f'{username} removed from event.')
         return redirect('events-manage-users', event_id=event.id)

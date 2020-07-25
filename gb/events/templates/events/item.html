@@ -11,7 +11,7 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    <p class="text-muted">Added by {{ item.added_by.user.username }}</p>
+    <p class="text-muted">Added by {{ item.added_by.user.username }} <abbr title='{{ item.date_created }} Central'>{{ item.date_created|naturaltime }}</abbr></p>
     {% if user.display_explanations %}
         <div class="card mt-5">
             <div class="card-header">
@@ -114,9 +114,9 @@
                             {{ case_buy_form|crispy }}
                         </fieldset>
                         {% if event.is_closed or event.is_locked %}
-                            <button type="button" class="btn btn-primary" disabled>Update Quantity</button>
+                            <button type="button" class="btn btn-info" disabled>Update Quantity</button>
                         {% else %}
-                            <button type="submit" value="Submit" name="casebuy_submit" class="btn btn-primary">Update Quantity</button>
+                            <button type="submit" value="Submit" name="casebuy_submit" class="btn btn-info">Update Quantity</button>
                         {% endif %}
                     </form>
                 </div>
@@ -140,7 +140,7 @@
                             <fieldset class="form-group">
                                 {{ youtube_form|crispy }}
                             </fieldset>
-                            <button type="submit" value="Submit" name="youtube_submit" class="btn btn-primary">Submit Video</button>
+                            <button type="submit" value="Submit" name="youtube_submit" class="btn btn-info">Submit Video</button>
                         </form>
                     </div>
                 </div>
@@ -182,7 +182,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <div class="alert alert-primary text-center mt-5 mb-5" role="alert">
+            <div class="alert alert-info text-center mt-5 mb-5" role="alert">
                 {% if event.is_closed %}
                     No Youtube videos posted.
                 {% else %}
@@ -203,7 +203,7 @@
                             <fieldset class="form-group">
                                 {{ comment_form|crispy }}
                             </fieldset>
-                            <button type="submit" value="Submit" name="comment_submit" class="btn btn-primary">Comment</button>
+                            <button type="submit" value="Submit" name="comment_submit" class="btn btn-info">Comment</button>
                         </form>
                     </div>
                 </div>
@@ -254,7 +254,7 @@
                 <a class="btn btn-outline-info mb-4" href="?page={{ page_comments.paginator.num_pages }}">Last</a>
             {% endif %}
         {% else %}
-            <div class="alert alert-primary text-center" role="alert">
+            <div class="alert alert-info text-center" role="alert">
                 {% if event.is_closed %}
                     No item comments left.
                 {% else %}

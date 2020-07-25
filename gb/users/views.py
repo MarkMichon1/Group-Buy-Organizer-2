@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, HttpResponseRedirect, redirect, render
 
 from events.models import Event, EventMembership
+from users.email import send_activation_email
 from users.forms import LoginForm, UserRegisterForm
 from users.models import User
 
@@ -19,15 +20,15 @@ def register(request):
         if form.is_valid():
             user = form.save()
 
-            # Adding user to sample event.
+            # Adding user to sample event.  The ID below needs to change if anything ever happens to the object.
             event = Event.objects.get(id='abbb8e18-1a45-42bc-9892-8932358fcbfa')
             membership = EventMembership(user=user, event=event)
             membership.save()
             user.is_active = False
+            send_activation_email(user.username, user.email, user.id)
             user.save()
 
-            username = user.username
-            messages.success(request, f'{username} created!  An activation email has been sent to '
+            messages.success(request, f'{user.username} created!  An activation email has been sent to '
                                       f"{user.email}.")
             return redirect('general-home')
     else:
@@ -57,8 +58,6 @@ def toggle_explanations(request):
     else:
         messages.info(request, 'How-to explanations disabled!')
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-#todo integrate captchas into registration
 
 
 def activate_account(request, pk):

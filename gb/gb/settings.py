@@ -24,13 +24,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY todo revisit at deployment
 SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 # SECURE_SSL_REDIRECT = True
 
 # Application definition
 INSTALLED_APPS = [
+    'captcha',
     'crispy_forms',
     'google_analytics',
     'mathfilters',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'events',
     'general',
@@ -110,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SITE_ID = 1
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -129,10 +132,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret('SECRET_KEY')
-EMAIL_HOST_PASSWORD = get_secret('SECRET_KEY')
+EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
 
 # Off Site Analytics
 GOOGLE_ANALYTICS = {
     'google_analytics_id': get_secret('SECRET_KEY'),
 }
+
+# Captcha todo replace in production
+RECAPTCHA_PUBLIC_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #remove
+
+# RECAPTCHA_PUBLIC_KEY = get_secret('RECAPTCHA_PUBLIC_KEY')
+# RECAPTCHA_PRIVATE_KEY = get_secret('RECAPTCHA_PRIVATE_KEY')

@@ -130,7 +130,7 @@ class EventMembership(models.Model):
 
     def generate_my_total(self): # For use in added cost split, user breakdown final addup, and manage payments.
         total = 0
-        for case_buy in self.case_buys: #todo... all?
+        for case_buy in self.case_buys:
             total += case_buy.item.price * case_buy.quantity
         for commit in self.split_commits:
             total += round(((commit.quantity/commit.case_split.item.packing) * commit.case_split.item.price), 2)
@@ -144,6 +144,7 @@ class EventMembership(models.Model):
 class Item(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     added_by = models.ForeignKey(EventMembership, null=True, on_delete=models.SET_NULL, related_name='created_items')
+    date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     packing = models.SmallIntegerField()
