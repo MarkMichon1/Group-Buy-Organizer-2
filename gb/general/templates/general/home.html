@@ -18,6 +18,9 @@
                        Welcome to Group Buy Organizer!  Quickly organize group buys, keep track of individual and group totals, and manage payments.  These instructions are to quickly get you up to speed with using the app.
                     </p>
                     <p class="card-text">
+                        Before we jump into the home page, lets quickly talk about some user functionality.  By clicking your username on the top right of the navigation bar, you can do a few different things.  Toggling <span class="font-weight-bold">Night Mode</span> changes the site to a dark theme, great for low light reading or power consumption on mobile devices (it looks cool too).  Most of the pages contain instructions such as these; these too can be toggled with the <span class="font-weight-bold">Explanations</span> button.  Finally <span class="font-weight-bold">Change Password</span> does exactly what it says it does.
+                    </p>
+                    <p class="card-text">
                         This is the homepage of the app.  Here you'll see group buy events that are available to you.  For your privacy and others, only events that you were invited to will you be able to access.  If you're looking to join an active event, contact one of the organizers and give them your username.  Once they add you, you'll have immediate access to the event.  If you're looking to organize your own event, click the <span class="text-success">Create New Event</span> button below.
                     </p>
                     <p class="card-text">
@@ -37,7 +40,7 @@
             </div>
         {% endif %}
         <div class="container text-center">
-            <a class="btn btn-success mb-5 mt-5" href="{% url 'events-create' %}" role="button">Create New Event</a>
+            <a class="btn btn-info mb-5 mt-5" href="{% url 'events-create' %}" role="button">Create New Event</a>
         </div>
         {% if memberships %}
             {% if memberships|length == 1 %}

@@ -193,7 +193,17 @@ def item(request, event_id, item_id):
             messages.success(request, 'Quantity updated!')
             return redirect('events-item', event_id=event_id, item_id=item.id)
     elif 'casesplit_submit' in request.POST:
-        pass
+        case_split_form = QuantitySelectForm(request.POST, max_pieces=100, item_price=item.price,
+                                           item_packing=item.packing, whole_cases=False, initial_qty=initial_qty)
+        if case_split_form.is_valid():
+            quantity = case_split_form.cleaned_data['quantity']
+            split = CaseSplit(item=item, event=event, started_by=request.user)
+            split.save()
+            commit = CasePieceCommit(user=request.user, event=event, quantity=quantity, membership=membership,
+                                     case_split=split)
+            commit.save()
+            messages.success(request, 'Case split created!')
+            return redirect('events-item', event_id=event_id, item_id=item.id)
     else:
         # Statistics 'Slice'
         item_data = item.render_event_view(membership=membership)
@@ -445,7 +455,7 @@ def order_breakdown(request, event_id):
         'event': event,
         'title': 'Order Breakdown By User',
     }
-    return render(request, 'events/user _breakdown.html', context=context)
+    return render(request, 'events/user_breakdown.html', context=context)
 
 
 @login_required

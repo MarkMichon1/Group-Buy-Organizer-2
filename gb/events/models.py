@@ -215,6 +215,11 @@ class Item(models.Model):
 
         return new_dict
 
+    def return_active_case_splits(self):
+        return self.case_splits.filter(is_complete=False)
+
+    def return_closed_case_splits(self):
+        return self.case_splits.filter(is_complete=False)
 
 
     class Meta:
@@ -246,6 +251,21 @@ class CaseSplit(models.Model):
     def render_case_splits(self):
         pass
 
+    def return_available_pieces(self):
+        total_pieces = self.item.packing
+        for commit in self.split_commits:
+            total_pieces -= commit.quantity
+        return total_pieces
+
+    def return_reserved_pieces(self):
+        reserved_pieces = 0
+        for commit in self.split_commits:
+            reserved_pieces += commit.quantity
+        return reserved_pieces
+
+    class Meta:
+        ordering = ('-date_created',)
+
 
 class CasePieceCommit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -258,6 +278,9 @@ class CasePieceCommit(models.Model):
     def __str__(self):
         return f'(Commit) {self.event.name} -> {self.case_split.item.name} -> {self.user.username} -> ' \
                f'{self.quantity}/{self.case_split.item.packing}'
+
+    class Meta:
+        ordering = ('-date_created',)
 
 
 class EventComment(models.Model):

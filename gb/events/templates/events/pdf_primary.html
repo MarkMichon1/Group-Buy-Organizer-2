@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% if title %}
+        <title>{{ title }} -- Group Buy Organizer</title>
+    {% else %}
+        <title>Group Buy Organizer</title>
+    {% endif %}
+    {% load static %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'general/img/rocket.svg' %}"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.0/flatly/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5 mb-5">
+    {% if not title_h1_override %}
+        <h1>{{ title }}</h1>
+        <hr/>
+    {% endif %}
+</div>
+<div class="container mt-5 mb-5">
+    {% block content %}{% endblock %}
+</div>
+</body>
+</html>

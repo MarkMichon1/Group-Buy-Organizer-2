@@ -29,65 +29,64 @@
 {% else %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 {% endif %}
-    <a class="navbar-brand" href="{% url 'general-home' %}">
-        <img src="{% static "general/img/rocket.svg" %}" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
-        Group Buy Organizer
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarColor01">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'general-updates' %}">Updates</a>
+<a class="navbar-brand" href="{% url 'general-home' %}">
+    <img src="{% static "general/img/rocket.svg" %}" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+    Group Buy Organizer
+</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarColor01">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'general-updates' %}">Updates</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'general-about' %}">About</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'general-donate' %}">Donate</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'general-statistics' %}">Statistics</a>
+        </li>
+    </ul>
+    {% if user.is_authenticated %}
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown">
+                    Welcome, {{ user.username|title }}
+                </a>
+                <div class="dropdown-menu">
+                    {% if user.night_mode_enabled %}
+                        <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Disable Night Mode</a>
+                    {% else %}
+                        <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Enable Night Mode</a>
+                    {% endif %}
+                    {% if user.display_explanations %}
+                        <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Disable Explanations</a>
+                    {% else %}
+                        <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Enable Explanations</a>
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a>
+                </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'general-about' %}">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'general-donate' %}">Donate</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'general-statistics' %}">Statistics</a>
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
         </ul>
-        {% if user.is_authenticated %}
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown">
-                        Welcome, {{ user.username|title }}
-                    </a>
-                    <div class="dropdown-menu">
-                        {% if user.night_mode_enabled %}
-                            <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Disable Night Mode</a>
-                        {% else %}
-                            <a class="dropdown-item" href="{% url 'users-toggle-nightmode' %}">Enable Night Mode</a>
-                        {% endif %}
-                        {% if user.display_explanations %}
-                            <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Disable Explanations</a>
-                        {% else %}
-                            <a class="dropdown-item" href="{% url 'users-toggle-explanations' %}">Enable Explanations</a>
-                        {% endif %}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                </li>
-            </ul>
-        {% else %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Register</a>
-                </li>
-            </ul>
-        {% endif %}
-    </div>
+    {% else %}
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Register</a>
+            </li>
+        </ul>
+    {% endif %}
+</div>
 </nav>
 <div class="container mt-5 mb-5">
     {% if not title_h1_override %}
