@@ -219,7 +219,7 @@ class Item(models.Model):
         return self.case_splits.filter(is_complete=False)
 
     def return_closed_case_splits(self):
-        return self.case_splits.filter(is_complete=False)
+        return self.case_splits.filter(is_complete=True)
 
 
     class Meta:
@@ -253,15 +253,36 @@ class CaseSplit(models.Model):
 
     def return_available_pieces(self):
         total_pieces = self.item.packing
-        for commit in self.split_commits:
+        for commit in self.split_commits.all():
             total_pieces -= commit.quantity
         return total_pieces
 
     def return_reserved_pieces(self):
         reserved_pieces = 0
-        for commit in self.split_commits:
+        for commit in self.split_commits.all():
             reserved_pieces += commit.quantity
         return reserved_pieces
+
+    def is_user_involved(self, user):
+        for commit in self.split_commits.all():
+            if user == commit.user:
+                return True
+        return False
+
+    def get_filled_percentage(self):
+        return (self.return_reserved_pieces()/self.item.packing) * 100
+
+    def evaluate_complete_status(self):
+        piece_sum = 0
+        for commit in self.split_commits.all():
+            piece_sum += commit.quantity
+        if self.is_complete:
+            if piece_sum < self.item.packing:
+                self.is_complete = False
+        else:
+            if piece_sum == self.item.packing:
+                self.is_complete = True
+        self.save()
 
     class Meta:
         ordering = ('-date_created',)
@@ -278,6 +299,12 @@ class CasePieceCommit(models.Model):
     def __str__(self):
         return f'(Commit) {self.event.name} -> {self.case_split.item.name} -> {self.user.username} -> ' \
                f'{self.quantity}/{self.case_split.item.packing}'
+
+    def return_quantity_pledged_prettied(self):
+        packing = self.case_split.item.packing
+        price = self.case_split.item.price
+
+        return f'{self.quantity}/{packing} -- ${round((self.quantity * (price/packing)), 2)}'
 
     class Meta:
         ordering = ('-date_created',)

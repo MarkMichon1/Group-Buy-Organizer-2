@@ -90,6 +90,7 @@ def close_event(request, event_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
     if is_valid == False:
         return redirect('general-home')
+    event.is_locked = True
     event.is_closed = True
     event.save()
     instance = Instance.objects.get()
@@ -97,7 +98,6 @@ def close_event(request, event_id):
     instance.save()
     messages.success(request, "Event closed!")
     return redirect('events-event', event_id=event.id)
-    # make event closed, add metrics to instance, redirect to event
 
 
 @login_required
@@ -178,7 +178,8 @@ def item(request, event_id, item_id):
         return redirect('events-item', event_id=event_id, item_id=item.id)
     elif 'casebuy_submit' in request.POST:
         case_buy_form = QuantitySelectForm(request.POST, max_pieces=100, item_price=item.price,
-                                           item_packing=item.packing, whole_cases=True, initial_qty=initial_qty)
+                                           item_packing=item.packing, whole_cases=True, initial_qty=initial_qty,
+                                           is_inline=False)
         if case_buy_form.is_valid():
             quantity = case_buy_form.cleaned_data['quantity']
             if case_buy:
@@ -194,7 +195,8 @@ def item(request, event_id, item_id):
             return redirect('events-item', event_id=event_id, item_id=item.id)
     elif 'casesplit_submit' in request.POST:
         case_split_form = QuantitySelectForm(request.POST, max_pieces=100, item_price=item.price,
-                                           item_packing=item.packing, whole_cases=False, initial_qty=initial_qty)
+                                           item_packing=item.packing, whole_cases=False, initial_qty=initial_qty,
+                                             is_inline=False)
         if case_split_form.is_valid():
             quantity = case_split_form.cleaned_data['quantity']
             split = CaseSplit(item=item, event=event, started_by=request.user)
@@ -210,13 +212,16 @@ def item(request, event_id, item_id):
 
         # Case Buy
         case_buy_form = QuantitySelectForm(max_pieces=100, item_price=item.price, item_packing=item.packing,
-                                           whole_cases=True, initial_qty=initial_qty)
-        if event.is_locked or event.is_closed:
-            case_buy_form.fields['quantity'].disabled = True
+                                           whole_cases=True, initial_qty=initial_qty, is_inline=False)
 
         # Case Split
         case_split_form = QuantitySelectForm(max_pieces=item.packing - 1, item_price=item.price,
-                                             item_packing=item.packing, whole_cases=False, initial_qty=1)
+                                             item_packing=item.packing, whole_cases=False, initial_qty=1,
+                                             is_inline=False)
+
+        if event.is_locked or event.is_closed:
+            case_buy_form.fields['quantity'].disabled = True
+            case_split_form.fields['quantity'].disabled = True
 
         # Chat
         event_comments = ItemComment.objects.filter(event=event).filter(item=item)
@@ -322,12 +327,77 @@ def case_split(request, event_id, item_id, case_split_id):
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
     case_split = get_object_or_404(CaseSplit, pk=case_split_id)
-    context = {
-        'event': event,
-        'item': item,
-        'title': f'{item.name} Case Split'
-    }
-    return render(request, 'events/case_split.html', context=context)
+
+    if request.method == 'POST':
+        form = QuantitySelectForm(request.POST)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+
+    else:
+        try:
+            commit = CasePieceCommit.objects.filter(membership=membership).filter(case_split=case_split).get()
+            initial_quantity, self_offset = commit.quantity, commit.quantity
+        except:
+            initial_quantity = 1
+            self_offset = 0
+
+
+        form = QuantitySelectForm(request.POST, max_pieces=item.packing - case_split.return_reserved_pieces()
+                                    + self_offset - (case_split.is_user_involved(membership.user) and
+                                    case_split.split_commits.count() == 1), item_price=item.price,
+                                    item_packing=item.packing, whole_cases=False, initial_qty=initial_quantity,
+                                    is_inline=True)
+
+        context = {
+            'case_split': case_split,
+            'event': event,
+            'form': form,
+            'is_involved': case_split.is_user_involved(membership.user),
+            'item': item,
+            'membership': membership,
+            'title': f'{item.name} Case Split'
+        }
+        return render(request, 'events/case_split.html', context=context)
+
+
+@login_required
+def case_split_delete(request, event_id, item_id, case_split_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, organizer=True)
+    if is_valid == False:
+        return redirect('general-home')
+    item = get_object_or_404(Item, pk=item_id)
+    case_split = get_object_or_404(CaseSplit, pk=case_split_id)
+    if event.is_closed:
+        messages.warning(request, 'This action cannot be performed if the event is locked.')
+        return redirect('events-item', event_id=event_id, item_id=item.id)
+    case_split.delete()
+    messages.success(request, 'Case split successfully deleted!')
+    return redirect('events-item', event_id=event_id, item_id=item.id)
+
+
+@login_required
+def case_split_commit_delete(request, event_id, item_id, case_split_id, commit_id):
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    if is_valid == False:
+        return redirect('general-home')
+    item = get_object_or_404(Item, pk=item_id)
+    case_split = get_object_or_404(CaseSplit, pk=case_split_id)
+    commit = get_object_or_404(CasePieceCommit, pk=commit_id)
+    if (request.user == commit.user and not event.is_locked) or membership.is_organizer or request.user.is_staff and \
+    not event.is_closed:
+        commit.delete()
+        if not case_split.split_commits.count():
+            case_split.delete()
+        else:
+            if case_split.is_complete == True:
+                case_split.is_complete = False
+                case_split.save()
+
+    if event.is_closed:
+        messages.warning(request, 'This action cannot be performed if the event is locked.')
+        return redirect('events-item', event_id=event_id, item_id=item.id)
+    messages.success(request, 'Commit successfully removed!')
+    return redirect('events-item', event_id=event_id, item_id=item.id)
 
 
 @login_required

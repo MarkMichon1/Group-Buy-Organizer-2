@@ -21,7 +21,8 @@ from users import views as user_views
 
 urlpatterns = [
     path('', include('general.urls')),
-    path('admin/', admin.site.urls),
+    path('6mvcdwdwz263hnoe/', admin.site.urls), # Django Admin... changed to something that will never be found...
+                                                # unless you're reading this.
     path('change-password/', auth_views.PasswordChangeView.as_view(
         template_name='users/password_change.html'), name='password_change'),
     path('change-password/done/', auth_views.PasswordChangeDoneView.as_view(

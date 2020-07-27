@@ -60,11 +60,11 @@
         </div>
     {% endif %}
     {% if event.is_closed %}
-        <div class="alert alert-info text-center" role="alert">
+        <div class="alert alert-info text-center mt-5 mb-5" role="alert">
             This event has concluded.  All order information and chat has been locked.
         </div>
     {% elif event.is_locked %}
-        <div class="alert alert-info text-center" role="alert">
+        <div class="alert alert-info text-center mt-5 mb-5" role="alert">
             This event has been locked by the event organizers.  This is usually done in preparation of wrapping everything up.  All case buys and case splits have been locked and cannot be changed.  Event chat still works.
         </div>
     {% endif %}
@@ -104,7 +104,8 @@
                         Event Chat
                     </a>
                     <a class="btn btn-success m-2" href="{% url 'events-my-order' membership.event.id user.id %}" role="button">My Order</a>
-                    {% if membership.is_organizer or membership.user.is_staff or event.users_can_see_master_overview %}
+                    {{ event.users_can_see_master_overview }}
+                    {% if membership.is_organizer or membership.user.is_staff or event.users_full_event_visibility %}
                         <a class="btn btn-info m-2" href="{% url 'events-order-summary' event.id %}" role="button">Order Summary</a>
                         <a class="btn btn-info m-2" href="{% url 'events-order-breakdown' event.id %}" role="button">User Breakdown</a>
                     {% endif %}
@@ -165,7 +166,7 @@
                     <td>${{ item.case_price }}</td>
                     <td>${{ item.piece_price }}</td>
                     {% if item.active_case_splits > 0 %}
-                        <td class="font-weight-bold">{{ item.active_case_splits|length}}</td>
+                        <td class="font-weight-bold">{{ item.active_case_splits}}</td>
                     {% else %}
                         <td class="text-muted">---</td>
                     {% endif %}

@@ -41,7 +41,6 @@ class AddUserForm(forms.Form):
 
 
 class ItemForm(forms.ModelForm):
-
     class Meta:
         model = Item
         fields = ['category', 'name', 'price', 'packing']
@@ -68,6 +67,7 @@ class QuantitySelectForm(forms.Form):
         self.item_packing = kwargs.pop('item_packing')
         self.whole_cases = kwargs.pop('whole_cases')
         self.initial_qty = kwargs.pop('initial_qty')
+        self.is_inline = kwargs.pop('is_inline')
         super(QuantitySelectForm, self).__init__(*args, **kwargs)
 
         def return_qty_price_select_field(self):
@@ -82,7 +82,9 @@ class QuantitySelectForm(forms.Form):
                     choices_list.append((i, f'{i} -- ${round(i * self.item_price, 2)}'))
             return choices_list
 
-        self.fields['quantity'] = forms.ChoiceField(choices=return_qty_price_select_field(self), initial=self.initial_qty)
+
+        self.fields['quantity'] = forms.ChoiceField(choices=return_qty_price_select_field(self),
+                                                    initial=self.initial_qty, label=not self.is_inline)
 
     quantity = forms.ChoiceField()
 

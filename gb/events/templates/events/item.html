@@ -29,6 +29,9 @@
                     <span class="font-weight-bold">Case splits</span> are when you share a case with one or more other users.  If and only if all of the pieces in the case are reserved, the case will be "committed" and locked into your order.  That means any case splits that don't have every item in the case reserved by the end of the group buy event will not be locked in.  Please note that you or anyone can pull out of a split while the event is open, and that once again removes the split from all other partipants until or unless it gets filled again.
                 </p>
                 <p class="card-text">
+                    To participate in case splits, you can either create your own using the form on this page, or you can click one that is open.
+                </p>
+                <p class="card-text">
                     There is also a feature to post Youtube videos of the product.  Simply paste the URL in and press submit.  If the video can be embedded it will be, otherwise the link will remain.
                 </p>
                 <p class="card-text">
@@ -153,9 +156,51 @@
         </div>
         {% if item.return_active_case_splits or item.return_closed_case_splits %}
             <h3>Active Case Splits</h3>
-            {% if item_data.active_splits %}
+            {% if item.return_active_case_splits %}
                 {% for active_split in item.return_active_case_splits %}
-                    ACTIVE SPLIT CARDS
+                    <div class="card mt-5 mb-5 border border-success rounded">
+                        <div class="card-header">
+                            {% if membership.is_organizer or user.is_staff %}
+                                <a href="{% url 'events-case-split-delete' event.id item.id active_split.id %}"><img class="float-right" src="{% static "events/img/delete.svg" %}" width="25" height="25" class="" title="Remove Comment" alt="Remove Case Split" loading="lazy"></a>
+                            {% endif %}
+                            <h3 class="font-weight-bold mb-3">
+                                <a href="{% url 'events-case-split' event.id item.id active_split.id %}">{{ active_split.return_reserved_pieces }} / {{ item.packing }} Pieces Reserved</a>
+                            </h3>
+                            <h6 class="card-subtitle mb-2 text-muted">Created <abbr title='{{ active_split.date_created }} Central'>{{ active_split.date_created|naturaltime }}</abbr> by {{ active_split.started_by.username }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ active_split.get_filled_percentage }}%">{{ active_split.return_reserved_pieces }} / {{ item.packing }}</div>
+                            </div>
+                            <table class="table table-hover mt-5">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Submitted</th>
+                                    <th scope="col">Quantity Pledged</th>
+                                    {% if membership.is_organizer or user.is_staff or active_split.is_user_involved %}
+                                        <th scope="col">Remove Commit</th>
+                                    {% endif %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for commit in active_split.split_commits.all %}
+                                    {% if user == commit.user %}
+                                        <tr class="table-success">
+                                            {% else %}
+                                        <tr>
+                                    {% endif %}
+                                    <th scope="row">{{ commit.user.username }}</th>
+                                    <td><abbr title='{{ commit.date_created }} Central'>{{ commit.date_created|naturaltime }}</abbr></td>
+                                    <td>{{ commit.return_quantity_pledged_prettied }}</td>
+                                    {% if user == commit.user and not event.is_locked and not event.is_closed or membership.is_organizer or user.is_staff %}
+                                        <td><a class="btn btn-danger" href="{% url 'events-case-split-commit-delete' event.id item.id active_split.id commit.id %}" role="button">Remove</a></td>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info text-center mb-5 mt-5" role="alert">
@@ -165,7 +210,49 @@
             <h3>Complete Case Splits</h3>
             {% if item.return_closed_case_splits %}
                 {% for complete_split in item.return_closed_case_splits %}
-                    COMPLETE SPLIT CARDS
+                    <div class="card mt-5 mb-5 border border-secondary rounded">
+                        <div class="card-header">
+                            {% if membership.is_organizer or user.is_staff %}
+                                <a href="{% url 'events-case-split-delete' event.id item.id complete_split.id %}"><img class="float-right" src="{% static "events/img/delete.svg" %}" width="25" height="25" class="" title="Remove Comment" alt="Remove Case Split" loading="lazy"></a>
+                            {% endif %}
+                            <h3 class="font-weight-bold mb-3">
+                                <a href="{% url 'events-case-split' event.id item.id complete_split.id %}">Complete- Case Locked In</a>
+                            </h3>
+                            <h6 class="card-subtitle mb-2 text-muted">Created <abbr title='{{ complete_split.date_created }} Central'>{{ complete_split.date_created|naturaltime }}</abbr> by {{ complete_split.started_by.username }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar bg-info" role="progressbar" style="width: {{ complete_split.get_filled_percentage }}%">{{ complete_split.return_reserved_pieces }} / {{ item.packing }}</div>
+                            </div>
+                            <table class="table table-hover mt-5">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Submitted</th>
+                                    <th scope="col">Quantity Pledged</th>
+                                    {% if membership.is_organizer or user.is_staff or complete_split.is_user_involved %}
+                                        <th scope="col">Remove Commit</th>
+                                    {% endif %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for commit in complete_split.split_commits.all %}
+                                    {% if user == commit.user %}
+                                        <tr class="table-success">
+                                            {% else %}
+                                        <tr>
+                                    {% endif %}
+                                    <th scope="row">{{ commit.user.username }}</th>
+                                    <td><abbr title='{{ commit.date_created }} Central'>{{ commit.date_created|naturaltime }}</abbr></td>
+                                    <td>{{ commit.return_quantity_pledged_prettied }}</td>
+                                    {% if user == commit.user and not event.is_locked and not event.is_closed or membership.is_organizer or user.is_staff %}
+                                        <td><a class="btn btn-danger" href="{% url 'events-case-split-commit-delete' event.id item.id complete_split.id commit.id %}" role="button">Remove</a></td>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info text-center mb-5 mt-5" role="alert">
