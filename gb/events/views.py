@@ -327,27 +327,68 @@ def case_split(request, event_id, item_id, case_split_id):
         return redirect('general-home')
     item = get_object_or_404(Item, pk=item_id)
     case_split = get_object_or_404(CaseSplit, pk=case_split_id)
-
     if request.method == 'POST':
-        form = QuantitySelectForm(request.POST)
+        form = QuantitySelectForm(request.POST, request.POST, max_pieces=item.packing, item_price=item.price,
+                                        item_packing=item.packing, whole_cases=False, initial_qty=1, is_inline=True)
         if form.is_valid():
-            quantity = form.cleaned_data['quantity']
+            form_quantity = int(form.cleaned_data['quantity'])
+            try:
+                case_split = CaseSplit.objects.get(id=case_split.id)
+            except:
+                messages.info(request, 'This case split has been deleted in between you loading the previous page and'
+                                       'clicking submit.')
+                return redirect('events-item', event=event, item=item)
 
+            if case_split.is_complete and case_split.is_user_involved(request.user) == False:
+                messages.info(request, 'This case split has been closed in the time between you loading the previous '
+                                           'page and clicking submit.... someone else beat you to it!  '
+                                           'Start a new case split instead')
+                return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
+            elif event.is_locked:
+                messages.info(request, 'This event has been locked in the time between you loading the previous page '
+                                       'and clicking submit....')
+                return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
+            else:
+                try:
+                    commit = CasePieceCommit.objects.filter(user=request.user).get(case_split=case_split)
+                    commit_quantity = commit.quantity
+                except:
+                    commit = None
+                    commit_quantity = 0
+                if item.packing < form_quantity + case_split.return_reserved_pieces() - commit_quantity:
+                    messages.info(request, 'Pieces pledged exceeds what is currently available for this case '
+                                           'split.  This occurs when someone else places a pledge right before '
+                                           'you.  Please resubmit a pledge with a different quantity, or otherwise '
+                                           'create a new case split.')
+                    return redirect('events-case-split', event_id=event.id, item_id=item.id,
+                                    case_split_id=case_split.id)
+                if commit:
+                    commit.quantity = form_quantity
+                    commit.save()
+                else:
+                    commit = CasePieceCommit(user=request.user, event=event, quantity=form_quantity,
+                                             membership=membership, case_split=case_split)
+                    commit.save()
+
+                case_split.evaluate_complete_status()
+                messages.info(request, 'Case split pledge accepted!')
+                return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
     else:
-        try:
-            commit = CasePieceCommit.objects.filter(membership=membership).filter(case_split=case_split).get()
-            initial_quantity, self_offset = commit.quantity, commit.quantity
-        except:
-            initial_quantity = 1
-            self_offset = 0
-
-
-        form = QuantitySelectForm(request.POST, max_pieces=item.packing - case_split.return_reserved_pieces()
-                                    + self_offset - (case_split.is_user_involved(membership.user) and
-                                    case_split.split_commits.count() == 1), item_price=item.price,
-                                    item_packing=item.packing, whole_cases=False, initial_qty=initial_quantity,
-                                    is_inline=True)
-
+        if event.is_locked == False:
+            try:
+                commit = CasePieceCommit.objects.filter(membership=membership).filter(case_split=case_split).get()
+                initial_quantity, self_offset = commit.quantity, commit.quantity
+            except:
+                initial_quantity = 1
+                self_offset = 0
+            form = QuantitySelectForm(max_pieces=item.packing - case_split.return_reserved_pieces()+ self_offset -
+                                        (case_split.is_user_involved(membership.user) and
+                                         case_split.split_commits.count() == 1), item_price=item.price,
+                                        item_packing=item.packing, whole_cases=False, initial_qty=initial_quantity,
+                                        is_inline=True)
+        else:
+            form = None
+        print(f'IS INVOLVED: {case_split.is_user_involved(membership.user)}')
         context = {
             'case_split': case_split,
             'event': event,
@@ -397,7 +438,7 @@ def case_split_commit_delete(request, event_id, item_id, case_split_id, commit_i
         messages.warning(request, 'This action cannot be performed if the event is locked.')
         return redirect('events-item', event_id=event_id, item_id=item.id)
     messages.success(request, 'Commit successfully removed!')
-    return redirect('events-item', event_id=event_id, item_id=item.id)
+    return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
 
 
 @login_required
