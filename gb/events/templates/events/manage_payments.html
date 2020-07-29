@@ -14,31 +14,54 @@
             </div>
             <div class="card-body">
                 <p class="card-text">
-                    This feature was added to help track payments from partipants, as well as their total.  Usage is optional and doesn't affect anything else.  Its worth nothing that this total includes the optional extra charges, which are set at <a href="{% url 'events-settings' event.id %}">Event Settings</a>.  More information about them is available there as well.
+                    This feature was added to help track payments from partipants, as well as their total.  Usage is optional and doesn't affect anything else.  Its worth nothing that this total includes the optional extra charges, which are set at <a href="{% url 'events-settings' event.id %}">Event Settings</a>.  More information about them is available there.  This is an organizer-only view.
                 </p>
                 <hr/>
                 <p class="card-text text-muted">These instructions can be disabled on the top right under your username.</p>
             </div>
         </div>
     {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-7">
+            <div class="card mb-5 mt-5 border-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Organizer Panel</h3>
+                </div>
+                <div class="card-body col text-center">
+                    <a class="btn btn-primary m-2" href="{% url 'events-manage-users' event.id %}" role="button">Manage Users</a>
+                    <a class="btn btn-primary m-2 disabled" href="#" role="button" disabled>Manage Payments</a>
+                    <a class="btn btn-primary m-2" href="{% url 'events-settings' event.id %}" role="button">Event Settings</a>
+                    <a class="btn btn-secondary m-2" href="{% url 'events-event' event.id %}" role="button">Back To Event</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table mt-5">
         <thead>
         <tr>
             <th scope="col">Username</th>
-            <th scope="col">Total</th>
+            {% if event.extra_charges > 0 %}
+                <th scope="col">Pre-Total</th>
+                <th scope="col">Total After Extra Fee Proportion</th>
+            {% else %}
+                <th scope="col">Total</th>
+            {% endif %}
             <th scope="col">Paid?</th>
             <th scope="col">Toggle</th>
         </tr>
         </thead>
         <tbody>
-        {% for membership in memberships %}
+        {% for membership in master_dict.membership_list %}
             {% if membership.has_paid %}
                 <tr class="table-primary">
                     {% else %}
                 <tr>
             {% endif %}
-        <th scope="row"><a href="{% url 'events-my-order' event.id membership.user.id %}">{{ membership.user.username }}</a></th>
-        <td>${{ membership.generate_my_total|floatformat:2 }}</td>
+        <th scope="row"><a href="{% url 'events-my-order' event.id membership.user_id %}">{{ membership.username }}</a></th>
+        <td>${{ membership.pre_total }}</td>
+        {% if event.extra_charges > 0 %}
+            <td>${{ membership.post_total }}</td>
+        {% endif %}
         {% if membership.has_paid %}
             <td>Yes</td>
             <td><a class="btn btn-warning" href="{% url 'events-toggle-payment' event.id membership.id %}" role="button">Mark as Unpaid</a></td>

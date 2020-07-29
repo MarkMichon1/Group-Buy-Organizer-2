@@ -1,1 +1,83 @@
-MY ORDER PLACEHOLDER!
+{% if my_order_data.item_groups %}
+    <div class="container">
+        {% for item_group in my_order_data.item_groups %}
+            <h3 class="mt-5 mb-3">{{ item_group.0 }}</h3>
+            <hr/>
+            <table class="table table-hover mt-4">
+                <thead>
+                <tr>
+                    <th scope="col">Item Name</th>
+                    <th scope="col">Packing</th>
+                    <th scope="col">Case Price</th>
+                    <th scope="col">Price / Piece</th>
+                    <th scope="col"># Cases Bought</th>
+                    <th scope="col">Case Splits Involved In</th>
+                    <th scope="col">Pieces Locked In</th>
+                    <th scope="col">Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in item_group.1 %}
+                    <tr>
+                        <th scope="row">
+                            {% if is_pdf %}
+                                {{ item.name }}
+                            {% else %}
+                                <a href="{% url 'events-item' event.id item.id %}">{{ item.name }}</a>
+                            {% endif %}
+                        </th>
+                        <td>{{ item.packing }} / 1</td>
+                        <td>${{ item.case_price }}</td>
+                        <td>${{ item.piece_price }}</td>
+                        {% if item.total_casebuy_cases > 0 %}
+                            <td class="font-weight-bold">{{ item.total_casebuy_cases}}</td>
+                        {% else %}
+                            <td class="text-muted">---</td>
+                        {% endif %}
+                        {% if item.total_casesplit_cases > 0 %}
+                            <td class="font-weight-bold">{{ item.total_casesplit_cases }}</td>
+                        {% else %}
+                            <td class="text-muted">---</td>
+                        {% endif %}
+                        {% if item.total_cases > 0 %}
+                            <td class="font-weight-bold">{{ item.total_cases }}</td>
+                        {% else %}
+                            <td class="text-muted">---</td>
+                        {% endif %}
+                        {% if item.total > 0 %}
+                            <td class="font-weight-bold">${{ item.total }}</td>
+                        {% else %}
+                            <td class="text-muted">---</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-5 text-center">
+            {% if is_pdf %}
+                <div class="card mt-5 mb-5">
+            {% else %}
+                <div class="card border-info mt-5 mb-5">
+            {% endif %}
+            <div class="card-header">
+                <h3>Event Summary</h3>
+            </div>
+            <div class="card-body">
+                <h3>{{ my_order_data.total_cases }} Total Cases</h3>
+            </div>
+            <div class="card-body">
+                <h3>Event Total: ${{ my_order_data.grand_total }}</h3>
+            </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                {% if event.is_locked or event.is_closed %}
+                    There are not any reserved cases in this event..
+                {% else %}
+                    There are not yet any reserved cases from case buys or case splits.
+                {% endif %}
+            </div>
+{% endif %}

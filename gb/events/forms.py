@@ -101,3 +101,25 @@ class EventSettingsForm(forms.ModelForm):
             'users_full_event_visibility': 'Allow users to see all event order data (summary, orders of others)',
             'extra_charges': "Extra charges for event.  Will be distributed proportionately to the size of everyone's order:"
         }
+
+
+class UserSelectForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        self.member_list = kwargs.pop('member_list')
+        self.initial_choice_username = kwargs.pop('initial_choice')
+
+        super(UserSelectForm, self).__init__(*args, **kwargs)
+
+        def return_member_choices(self):
+            choices_list = []
+            for member in self.member_list:
+                choices_list.append((member.user.username, member.user.username, ))
+
+            return choices_list
+
+
+        self.fields['member_choice'] = forms.ChoiceField(choices=return_member_choices(self),
+                                                    initial=self.initial_choice_username)
+
+    member_choice = forms.ChoiceField()

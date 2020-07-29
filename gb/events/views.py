@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from events.forms import AddUserForm, QuantitySelectForm, CommentCreateForm, ItemForm, CreateItemYoutubeVideoForm, \
-    EventCreateForm, EventSettingsForm
+    EventCreateForm, EventSettingsForm, UserSelectForm
 from events.models import CaseBuy, CasePieceCommit, CaseSplit, Event, EventComment, EventMembership, Item, ItemComment,\
     ItemYoutubeVideo
 from events.view_utilities import event_auth_checkpoint, validate_and_categorize_youtube_link
@@ -388,7 +388,6 @@ def case_split(request, event_id, item_id, case_split_id):
                                         is_inline=True)
         else:
             form = None
-        print(f'IS INVOLVED: {case_split.is_user_involved(membership.user)}')
         context = {
             'case_split': case_split,
             'event': event,
@@ -447,11 +446,11 @@ def manage_payments(request, event_id):
     if is_valid == False:
         return redirect('general-home')
 
-    memberships = EventMembership.objects.filter(event=event)
+    master_dict = event.generate_user_totals_all()
 
     context = {
         'event': event,
-        'memberships': memberships,
+        'master_dict': master_dict,
         'title': 'Manage Payments'
     }
     return render(request, 'events/manage_payments.html', context=context)
@@ -548,21 +547,29 @@ def remove_participant(request, event_id, user_id):
 
 @login_required
 def event_order_summary(request, event_id):
-    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, summary_or_breakdown=True)
     if is_valid == False:
         return redirect('general-home')
+
+    summary_data = event.generate_event_pages_contents(page_type='summary')
+
     context = {
         'event': event,
+        'summary_data': summary_data,
         'title': 'Event Order Summary'
     }
     return render(request, 'events/event_order_summary.html', context=context)
 
 @login_required
 def order_breakdown(request, event_id):
-    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
+    event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request, summary_or_breakdown=True)
     if is_valid == False:
         return redirect('general-home')
+
+    breakdown_data = event.generate_event_pages_contents(page_type='breakdown')
+
     context = {
+        'breakdown_data': breakdown_data,
         'event': event,
         'title': 'Order Breakdown By User',
     }
@@ -574,13 +581,31 @@ def my_order(request, event_id, user_id):
     event, membership, is_valid = event_auth_checkpoint(event_id=event_id, request=request)
     if is_valid == False:
         return redirect('general-home')
-    user = get_object_or_404(User, pk=user_id)
-    context = {
-        'event': event,
-        'title': f"{user.username}'s Order",
-        'user': user
-    }
-    return render(request, 'events/my_order.html', context=context)
+    targetted_user = get_object_or_404(User, pk=user_id)
+    if not event.users_full_event_visibility and targetted_user != request.user and not membership.is_organizer:
+        messages.info(request, "This view is restricted for organizers only.")
+        return redirect('events-event', event_id=event_id)
+
+    if request.method == 'POST':
+        form = UserSelectForm(request.POST, member_list=event.members.all(), initial_choice=targetted_user.username)
+        if form.is_valid():
+            selected_user = form.cleaned_data['member_choice']
+            switch_user_view = User.objects.get(username=selected_user)
+            return redirect('events-my-order', event_id=event_id, user_id=switch_user_view.id)
+    else:
+        form = UserSelectForm(member_list=event.members.all(), initial_choice=targetted_user.username)
+
+        targetted_membership = EventMembership.objects.filter(event=event).get(user=targetted_user)
+        my_order_data = event.generate_event_pages_contents(page_type='my_order', membership=targetted_membership)
+
+        context = {
+            'event': event,
+            'form': form,
+            'my_order_data': my_order_data,
+            'title': f"{targetted_user.username}'s Order",
+            'targetted_user': targetted_user
+        }
+        return render(request, 'events/my_order.html', context=context)
 
 
 @login_required

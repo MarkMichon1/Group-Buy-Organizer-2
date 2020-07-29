@@ -8,19 +8,21 @@
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </nav>
-    <div class="row justify-content-center">
-        <div class="col-3">
-            <div class="container text-center mb-5 mt-5 border border-info rounded">
-                <p class="font-weight-bold m-3">Want a PDF of this page?</p>
-                {% if user.night_mode_enabled %}
-                    <p><img src="{% static "events/img/pdf_night.svg" %}" width="90" height="90" alt="PDF Icon" class="m-3"></p>
-                {% else %}
-                    <p><img src="{% static "events/img/pdf.svg" %}" width="90" height="90" alt="PDF Icon" class="m-3"></p>
-                {% endif %}
-                <a class="btn btn-outline-info m-3" href="{% url 'events-order-summary-pdf' event.id %}" role="button">Generate PDF</a>
+    {% if summary_data.item_groups %}
+        <div class="row justify-content-center">
+            <div class="col-3">
+                <div class="container text-center mb-5 mt-5 border border-info rounded">
+                    <p class="font-weight-bold m-3">Want a PDF of this page?</p>
+                    {% if user.night_mode_enabled %}
+                        <p><img src="{% static "events/img/pdf_night.svg" %}" width="90" height="90" alt="PDF Icon" class="m-3"></p>
+                    {% else %}
+                        <p><img src="{% static "events/img/pdf.svg" %}" width="90" height="90" alt="PDF Icon" class="m-3"></p>
+                    {% endif %}
+                    <a class="btn btn-outline-info m-3" href="{% url 'events-order-summary-pdf' event.id %}" role="button">Generate PDF</a>
+                    <p class="text-muted">Note- Page styling when the PDF renders can be buggy in some places.  This will be fixed!</p>
+                </div>
             </div>
         </div>
-    </div>
-    event order summary placeholder mt5
+    {% endif %}
     {% include 'events/event_order_summary_core.html' %}
 {% endblock %}
