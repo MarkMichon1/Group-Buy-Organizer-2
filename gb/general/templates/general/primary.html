@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     {% if title %}
-        <title>{{ title }} -- Group Buy Organizer</title>
+        <title>{{ title }} -- Pyro Group Buys</title>
     {% else %}
-        <title>Group Buy Organizer</title>
+        <title>Pyro Group Buys</title>
     {% endif %}
     {% load static %}
     <link rel="shortcut icon" type="image/png" href="{% static 'general/img/rocket.svg' %}"/>
@@ -31,7 +31,7 @@
 {% endif %}
 <a class="navbar-brand" href="{% url 'general-home' %}">
     <img src="{% static "general/img/rocket.svg" %}" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
-    Group Buy Organizer
+    Pyro Group Buys
 </a>
 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>

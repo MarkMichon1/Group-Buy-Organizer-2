@@ -1,7 +1,6 @@
 from django.db import models
 
 from decimal import Decimal
-import math
 import uuid
 
 from users.models import User
@@ -90,8 +89,6 @@ class Event(models.Model):
             category_list = [items[0].category.name, []]
             category_name = items[0].category.name
             for item in items:
-                # if page_type == 'summary' or page_type == 'breakdown':
-                #     grand_total +=
                 if item.category.name == category_name:
                     if page_type == 'event':
                         item_view = item.render_event_view(membership=membership)
@@ -106,7 +103,7 @@ class Event(models.Model):
                     elif page_type == 'my_order':
                         item_view = item.render_my_order_view(membership=membership)
                         category_list[1].append(item_view)
-                        grand_total += item_view['total']
+                        grand_total += item_view['your_total_price']
 
                 else:
                     item_groups.append(category_list)
@@ -125,7 +122,7 @@ class Event(models.Model):
                     elif page_type == 'my_order':
                         item_view = item.render_my_order_view(membership=membership)
                         category_list[1].append(item_view)
-                        grand_total += item_view['total']
+                        grand_total += item_view['your_total_price']
 
             # Cleanup
             item_groups.append(category_list)
@@ -134,10 +131,11 @@ class Event(models.Model):
         page_data['item_groups'] = item_groups
         page_data['grand_total'] = grand_total
         page_data['total_cases'] = total_cases
+        page_data['target_case_splits'] = target_case_splits
 
         # Extras at end of page
         if page_type == 'breakdown':
-            pass
+            pass #todo manage user segment
 
         return page_data
 
@@ -221,7 +219,8 @@ class Item(models.Model):
 
     def render_breakdown_view(self):
         returned_dict = {}
-
+        returned_dict = {**returned_dict, **self._core_data_fragment()}
+        returned_dict = {**returned_dict, **self._total_cases_fragment()}
         return returned_dict
 
     def render_my_order_view(self, membership):

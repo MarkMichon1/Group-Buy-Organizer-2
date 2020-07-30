@@ -1,11 +1,15 @@
 {% extends 'general/primary.html' %}
 {% block content %}
-    Group Buy Organizer is a free service, and will always be that way.
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_donations" />
-<input type="hidden" name="business" value="K9ZC3UDVMTWHL" />
-<input type="hidden" name="currency_code" value="USD" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="Donate with PayPal" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-</form>
+    <p>pyrogroupbuys.com is free service towards the pyro community, and always will be.  There are no paid or premium tiers, everyone gets the same cool features.  Its designed not only to make existing group buys easier, but to attract more pyros towards group buys by greatly lowering the barriers to setting one up and running it.  In a nutshell, its about saving you time and making the whole process much faster, and maybe even more fun.</p>
+    <p>At the end of the day though, this site costs money to run.  If you used the app and see the value of having a service like this online, even if its a couple dollars it would be very much appreciated.  Thanks for considering.</p>
+    <p>The link below redirects to PayPal:</p>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" class="text-center mt-5">
+        <div class="form-group">
+            <input type="hidden" name="cmd" value="_donations" />
+            <input type="hidden" name="business" value="K9ZC3UDVMTWHL" />
+            <input type="hidden" name="currency_code" value="USD" />
+            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="Donate with PayPal" alt="Donate with PayPal button" />
+            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+        </div>
+    </form>
 {% endblock %}

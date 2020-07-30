@@ -120,6 +120,7 @@ class UserSelectForm(forms.Form):
 
 
         self.fields['member_choice'] = forms.ChoiceField(choices=return_member_choices(self),
-                                                    initial=self.initial_choice_username)
+                                                        initial=self.initial_choice_username,
+                                                        label=False)
 
     member_choice = forms.ChoiceField()

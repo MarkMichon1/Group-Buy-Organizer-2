@@ -123,16 +123,39 @@
             </div>
         {% endif %}
     {% else %}
-        <div class="alert alert-info text-center" role="alert">
+        <div class="alert alert-info text-center mt-5 mb-5" role="alert">
             Welcome to Group Buy Organizer!  Please log in or register to use the application, or click "About" or
             "Updates" to learn more.
         </div>
-        <div class="mb-5 mt-5 text-center">
-            <p>Placeholder for overview</p>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/Mg-Nksc7Oh0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div class="card">
+            <div class="card-header text-center">
+                <h1>Save time running fireworks group buys</h1>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Group buys are a great way to purchase fireworks.  You save a lot of money buying wholesale, and you can split cases with other people.  However, its always come at the cost of inconvenience both for the organizers and for the participants themselves.  Deciding on cases to split, setting up case splits with members, or changing your mind on your order could be an endless back and forth.</p>
+                <p class="card-text">pyrogroupbuys.com changes all of that.  Host and run large group buys in a fraction of the time!  Rather than accounting for complex orders and changes, this tracks all of that for you.  Partipicants can add and modify their orders, which will instantly update a master summary of items.</p>
+                <p class="card-text">
+                    Heres a quick overview of the features:
+                    <ul>
+                        <li><span class="font-weight-bold">Event System:</span>  Have complete control of your group buy event.  All events are invite-only, making them only visible and accessible to people you allow in.  Assign other members as organizers as well.  Freeze any changes made to the order once you're ready to wrap up the event.</li>
+                        <li><span class="font-weight-bold">Built-in Tutorial:</span>  An in-page tutorial walks you through how to use this, getting you up to speed to quickly using this in as little time as possible.</li>
+                        <li><span class="font-weight-bold">Items:</span>  Items available for purchase are displayed in tables with all of their core information (name, packing, price, price per piece and more) and organized by category, making it as easy to navigate as a price sheet.</li>
+                        <li><span class="font-weight-bold">Built-in Item Chat and Youtube Demos:</span>  Talk about various items, and share demo videos of them which automatically embed on the page.</li>
+                        <li><span class="font-weight-bold">Built-in Event Chat:</span>  The event itself has its own chat area as well, for sharing important event information, coordinating case splits, or whatever else.</li>
+                        <li><span class="font-weight-bold">Case Buy System:</span>  Order whole cases quickly and easily.  Any changes to quantity get instantly added to the member's order page, as well as the event summary adding up all of the cases in the event.</li>
+                        <li><span class="font-weight-bold">Case Split System:</span>  Coordinating case splits are now a lot easier and faster.  Case splits work by you pledging some amount of pieces inside of the case, and others doing the same.  Once all of the pieces in a case are accounted for, only then will that case get "locked in" to everyone's order.</li>
+                        <li><span class="font-weight-bold">Manage Participant Payments:</span>  Organizer-only view seeing the member's total of both their case buys and case splits, and tracking if they have paid you or not yet.</li>
+                        <li><span class="font-weight-bold">Multiple Order Views:</span>  You get several views of the event's order.  Aside from the individual orders of everyone else, you also get a summary of the entire event showing how many cases there are of each item, but a breakdown showing how each of the items allocates to members, whether through case buys or case splits.</li>
+                        <li><span class="font-weight-bold">Export To PDF:</span>  All of the order views have built in functionality to export the pages to PDF.  Have an extra copy detailing your order or event, or just to archive past events off site.</li>
+                        <li><span class="font-weight-bold">Night Mode:</span>  Optionally use the application with a darker theme, good for saving energy on mobile devices and it looks cool too.</li>
+                        <li><span class="font-weight-bold">And more... </span>  Aside from stuff not mentioned, more features will be added over time as we approach the next season in 2021.</li>
+                    </ul>
+                </p>
+                <p class="card-text">
+                    <span class="font-weight-bold"><a href="{% url 'register' %}">Register today</a> </span> and give the service a try.  All new registrations are automatically added to a sample event to interact with and see how the app works.
+                </p>
+            </div>
         </div>
-        <div class="mb-5 mt-5 text-center">
-            <p>Placeholder for how to use</p>
-        </div>
+
     {% endif %}
 {% endblock %}

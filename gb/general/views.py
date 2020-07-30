@@ -1,8 +1,6 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import HttpResponseRedirect, render
 
-from events.models import EventMembership
 from general.models import Instance
 from general.utilities import app_db_initialization
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
