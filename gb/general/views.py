@@ -47,7 +47,7 @@ def statistics(request):
     open_events = Event.objects.filter(is_locked=False).count()
     total_events = Event.objects.count()
     total_cases = instance.total_cases_reserved
-    total_page_views = instance.total_page_views
+    #total_page_views = int(instance.total_page_views)
 
     context = {
         'title' : 'Statistics',
@@ -56,7 +56,7 @@ def statistics(request):
         'open_events': open_events,
         'total_events': total_events,
         'total_cases': total_cases,
-        'total_page_views': total_page_views,
+        #'total_page_views': total_page_views,
     }
     return render(request, 'general/statistics.html', context=context)
 

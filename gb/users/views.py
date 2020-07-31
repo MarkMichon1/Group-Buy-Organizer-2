@@ -29,7 +29,7 @@ def register(request):
             user.save()
 
             messages.success(request, f'{user.username} created!  An activation email has been sent to '
-                                      f"{user.email}.")
+                                      f"{user.email}.  Check your spam folder if it isn't in your main inbox.")
             return redirect('general-home')
     else:
         form = UserRegisterForm()

@@ -21,7 +21,7 @@ from gb.secrets import get_secret
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# SECURITY todo revisit at deployment
+# SECURITY
 SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = ['*']
@@ -55,8 +55,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'general.middleware.view_count_middleware' #IMPORTANT- may have to be commented out until Instance is initialized.
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    #'general.middleware.view_count_middleware' #IMPORTANT- may have to be commented out until Instance is initialized.
 ]
 
 ROOT_URLCONF = 'gb.urls'
@@ -140,7 +140,7 @@ GOOGLE_ANALYTICS = {
     'google_analytics_id': get_secret('SECRET_KEY'),
 }
 
-# Captcha todo replace in production
+# Captcha
 RECAPTCHA_PUBLIC_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" #these are Google test keys, not private
 RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #remove

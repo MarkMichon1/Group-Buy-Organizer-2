@@ -8,19 +8,19 @@ from events.models import Event, Item, ItemYoutubeVideo
 
 
 class EventCreateForm(forms.Form):
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('target_user', None)
         super(EventCreateForm, self).__init__(*args, **kwargs)
-
+        print('ran')
         if user.night_mode_enabled:
-            data_theme = 'dark'
+            captcha_theme = 'dark'
         else:
-            data_theme = 'light'
+            captcha_theme = 'light'
 
         self.fields['captcha'] = ReCaptchaField(
             widget=ReCaptchaV2Checkbox(
                 attrs={
-                    'data-theme': f'{data_theme}'
+                    'data-theme': f'{captcha_theme}'
                 }
             )
         )

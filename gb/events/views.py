@@ -14,7 +14,7 @@ from users.models import User
 @login_required
 def create_event(request):
     if request.method == 'POST':
-        form = EventCreateForm(request.POST)
+        form = EventCreateForm(request.POST, target_user=request.user)
         if form.is_valid():
             title = form.cleaned_data['name']
             description = form.cleaned_data['description']
@@ -26,7 +26,7 @@ def create_event(request):
             return redirect('general-home')
     else:
         context = {
-            'form' : EventCreateForm(user=request.user),
+            'form' : EventCreateForm(target_user=request.user),
             'title' : 'New Event'
         }
         return render(request, 'events/create_event.html', context=context)
@@ -428,16 +428,18 @@ def case_split_commit_delete(request, event_id, item_id, case_split_id, commit_i
         commit.delete()
         if not case_split.split_commits.count():
             case_split.delete()
+            messages.success(request, 'Commit successfully removed!')
+            return redirect('events-item', event_id=event.id, item_id=item.id)
         else:
             if case_split.is_complete == True:
                 case_split.is_complete = False
                 case_split.save()
+                messages.success(request, 'Commit successfully removed!')
+                return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
 
     if event.is_closed:
         messages.warning(request, 'This action cannot be performed if the event is locked.')
         return redirect('events-item', event_id=event_id, item_id=item.id)
-    messages.success(request, 'Commit successfully removed!')
-    return redirect('events-case-split', event_id=event.id, item_id=item.id, case_split_id=case_split.id)
 
 
 @login_required
