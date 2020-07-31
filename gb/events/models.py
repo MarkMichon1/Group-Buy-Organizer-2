@@ -170,7 +170,7 @@ class Event(models.Model):
                 member_dict['pre_total'] = pre_total
                 membership_list.append(member_dict)
             for member_dict in membership_list:
-                percentage_of_event = member_dict['pre_total'] / grand_total
+                percentage_of_event = member_dict['pre_total'] / grand_total if grand_total else 0
                 member_dict['percentage_of_event'] = round(percentage_of_event, 2)
                 member_dict['displayed_percentage'] = round(percentage_of_event * 100, 2)
                 member_dict['share_of_fee'] = round((self.extra_charges * percentage_of_event), 2)
