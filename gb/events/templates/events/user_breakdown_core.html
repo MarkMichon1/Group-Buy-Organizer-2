@@ -1,133 +1,149 @@
-{% if my_order_data.item_groups %}
-    {% for category_group in breakdown_object.group_lists %}
-        <h2 class="mb-3 mt-3"><p class="font-weight-bold">{{ category_group.category_name }}</p></h2>
+{% if breakdown_data.item_groups %}
+    {% for item_group in breakdown_data.item_groups %}
+        <h2 class="mb-3 mt-3 font-weight-bold">{{ item_group.0 }}</h2>
         <hr>
-        {% for item in category_group.items %}
-            <div class="container mt-3 mb-3 border border-secondary rounded">
-                <h3 class="mt-2 mb-2">{{ item.name }}</h3>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th scope="col">Packing</th>
-                        <th scope="col">Case Price</th>
-                        <th scope="col">Piece Price</th>
-                        <th scope="col">Cases Bought</th>
-                        <th scope="col">Cases Split</th>
-                        <th scope="col">Total Cases</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>{{ item.packing }} / 1</td>
-                        <td>{{ "$%.2f"|format(item.case_price) }}</td>
-                        <td>{{ "$%.2f"|format(item.piece_price) }}</td>
-                        <td>{{ item.cases_bought }}</td>
-                        <td>{{ item.cases_split }}</td>
-                        <td>{{ item.total_cases }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-                {% if item.case_buy_table|length > 0 %}
-                    {% if item.case_buy_table|length ==1 %}
-                        <h4 class="mt-3 mb-3">1 Case Buy Purchaser</h4>
-                    {% else %}
-                        <h4 class="mt-3 mb-3">{{ item.case_buy_table|length }} Case Buy Purchasers</h4>
-                    {% endif %}
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th scope="col">Username</th>
-                            <th scope="col"># Of Cases</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for group in item.case_buy_table %}
+        {% for item in item_group.1 %}
+            {% if is_pdf %}
+                <div class="card mt-3 mb-5 rounded">
+            {% else %}
+                <div class="card mt-3 mb-5 rounded border border-info">
+            {% endif %}
+        <div class="card-header">
+            <h3 class="mt-2 mb-2 font-weight-bold">{{ item.name }}</h3>
+        </div>
+        <div class="card-body">
+            <table class="table mb-4">
+                <thead>
+                <tr>
+                    <th scope="col">Packing</th>
+                    <th scope="col">Case Price</th>
+                    <th scope="col">Piece Price</th>
+                    <th scope="col">Cases Bought</th>
+                    <th scope="col">Cases Split</th>
+                    <th scope="col">Total Cases</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ item.packing }} / 1</td>
+                    <td>${{ item.case_price }}</td>
+                    <td>${{ item.piece_price }}</td>
+                    <td>{{ item.total_casebuy_cases }}</td>
+                    <td>{{ item.total_casesplit_cases }}</td>
+                    <td>{{ item.total_cases }}</td>
+                </tr>
+                </tbody>
+            </table>
+            {% if item.casebuys|length > 0 %}
+                <div class="card border border-secondary mb-4 mt-4">
+                    <div class="card-body">
+                        {% if item.casebuys|length == 1 %}
+                            <h4 class="mt-3 mb-2 font-weight-bold">1 Case Buy Purchaser:</h4>
+                        {% else %}
+                            <h4 class="mt-3 mb-2 font-weight-bold">{{ item.casebuys|length }} Case Buy Purchasers:</h4>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <table class="table mb-2">
+                            <thead>
                             <tr>
-                                <th scope="row">{{ group[0] }}</th>
-                                <td>{{ group[1] }} -- {{ "$%.2f"|format(group[1] * item.case_price) }}</td>
+                                <th scope="col">Username</th>
+                                <th scope="col"># Of Cases</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {% for casebuy in item.casebuys %}
+                                <tr>
+                                    <th scope="row">{{ casebuy.user.username }}</th>
+                                    <td>{{ casebuy.quantity }} -- ${{ casebuy.return_casebuy_total }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            {% if item.casesplits|length > 0 %}
+                {% if item.casesplits|length == 1 %}
+                    <h4 class="mt-4 mb-4 font-weight-bold">1 Case Split:</h4>
+                {% else %}
+                    <h4 class="mt-4 mb-4 font-weight-bold">{{ item.casesplits|length }} Case Splits:</h4>
                 {% endif %}
-                {% if item.case_split_cards|length > 0 %}
-                    {% if item.case_split_cards|length ==1 %}
-                        <h4 class="mt-3 mb-3">1 Case Split</h4>
-                    {% else %}
-                        <h4 class="mt-3 mb-3">{{ item.case_split_cards|length }} Case Splits</h4>
-                    {% endif %}
-                    {% for case_split in item.case_split_cards %}
-                        <div class="card border border-secondary mb-5 mt-5">
-                            <div class="card-header">
-                                <h5 class="card-title">Split {{ loop.index }} of {{ item.case_split_cards|length }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <table class="table">
-                                    <thead>
+                {% for case_split in item.casesplits %}
+                    <div class="card border border-secondary mb-2 mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4 font-weight-bold">Split {{ forloop.counter }} of {{ item.casesplits|length }}</h5>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col"># of Pieces</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for commit in case_split.split_commits.all %}
                                     <tr>
-                                        <th scope="col">Username</th>
-                                        <th scope="col"># of Pieces</th>
+                                        <th scope="row">{{ commit.user.username }}</th>
+                                        <td>{{ commit.return_quantity_pledged_prettied }} </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for commit in case_split.commits %}
-                                        <tr>
-                                            <th scope="row">{{ commit[0][1] }}</th>
-                                            <td>{{ commit[1].pieces_committed }} / {{ item.item.packing }} --
-                                                {{ "$%.2f"|format(commit[2]) }} </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        </div>
         {% endfor %}
     {% endfor %}
-    <div class="container mt-5 mb-5">
-        <h2><p class="font-weight-bold">Event Total: {{ "$%.2f"|format(breakdown_object.total) }}</p></h2>
-    </div>
-    <div class="container mb-5 mt-5">
-        <h3>User Totals</h3>
+<div class="container mt-5 mb-5 text-center">
+    <h2>
+        Event Total: ${{ breakdown_data.member_totals.grand_total }}
+        {% if event.extra_charges %}
+            <p><small class="text-muted">Extra Charges: ${{ event.extra_charges }}</small></p>
+        {% endif %}
+    </h2>
+</div>
+<div class="card mb-5 mt-5 border border-success">
+    <div class="card-body">
+        <h3 class="mt-3 mb-4 font-weight-bold">User Totals</h3>
         <table class="table">
             <thead>
-            <tr>
-                <th scope="col">Username</th>
-                <th scope="col">Order Total</th>
-                {% if user_total_object.extra_charges > 0 %}
-                    <th scope="col">Extra Fee Split</th>
-                    <th scope="col">Total</th>
-                {% else %}
-                    <th scope="col">Percentage of Group Buy Order</th>
-                {% endif %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in user_total_object.user_totals_table %}
+        <tr>
+            <th scope="col">Username</th>
+            {% if event.extra_charges > 0 %}
+                <th scope="col">Pre-Total</th>
+                <th scope="col">Extra Fee Split</th>
+            {% endif %}
+            <th scope="col">Percentage of Group Buy Order</th>
+            <th scope="col">Order Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for participant in breakdown_data.member_totals.membership_list %}
+            {% if participant.post_total > 0 %}
                 <tr>
-                    <th scope="row">{{ user[0] }}</th>
-                    <td>{{ "$%.2f"|format(user[1]) }}</td>
-                    {% if user_total_object.extra_charges == 0 %}
-                        <td>{{ "%.1f"|format(user[2] * 100) }}%</td>
-                    {% else %}
-                        <td>{{ "%.1f"|format(user[2] * 100) }}% of order -- ${{ user[3] }}</td>
+                    <th scope="row">{{ participant.username }}</th>
+                    {% if event.extra_charges > 0 %}
+                        <td>${{ participant.pre_total }}</td>
+                        <td>${{ participant.share_of_fee }}</td>
                     {% endif %}
-                    {% if user_total_object.extra_charges > 0 %}
-                        <td>{{ "$%.2f"|format(user[4]) }}</td>
-                    {% endif %}
+                        <td>{{ participant.displayed_percentage }}%</td>
+                        <td class="font-weight-bold">${{ participant.post_total }}</td>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
     </div>
+</div>
 {% else %}
-    <div class="alert alert-info text-center" role="alert">
-        {% if event.is_locked or event.is_closed %}
-            There are not any reserved cases in this event.
-        {% else %}
-            There are not yet any reserved cases from case buys or case splits.
-        {% endif %}
-    </div>
+<div class="alert alert-info text-center" role="alert">
+    {% if event.is_locked or event.is_closed %}
+        There are not any reserved cases in this event.
+    {% else %}
+        There are not yet any reserved cases from case buys or case splits.
+    {% endif %}
+</div>
 {% endif %}

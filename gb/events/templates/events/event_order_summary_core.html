@@ -55,29 +55,16 @@
             </table>
         {% endfor %}
     </div>
-    <div class="row justify-content-center">
-        <div class="col-5 text-center">
-            {% if is_pdf %}
-                <div class="card mt-5 mb-5">
-            {% else %}
-                <div class="card border-info mt-5 mb-5">
-            {% endif %}
-            <div class="card-header">
-                <h3>Event Summary</h3>
-            </div>
-            <div class="card-body">
-                <h3>{{ summary_data.total_cases }} Total Cases</h3>
-            </div>
-            <div class="card-body">
-                <h3>Event Total: ${{ summary_data.grand_total }}</h3>
-            </div>
-            </div>
-            {% else %}
-            <div class="alert alert-info text-center" role="alert">
-                {% if event.is_locked or event.is_closed %}
-                    There are not any reserved cases in this event..
-                {% else %}
-                    There are not yet any reserved cases from case buys or case splits.
-                {% endif %}
-            </div>
+    <div class="container mt-5 mb-5 text-center">
+        <h2><small class="text-muted">{{ summary_data.total_cases }} Total Cases</small></h2>
+        <h2>Event Total: ${{ summary_data.grand_total }}</h2>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center" role="alert">
+        {% if event.is_locked or event.is_closed %}
+            There are not any reserved cases in this event..
+        {% else %}
+            There are not yet any reserved cases from case buys or case splits.
+        {% endif %}
+    </div>
 {% endif %}

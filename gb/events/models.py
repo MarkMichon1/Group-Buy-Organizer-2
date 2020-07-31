@@ -92,17 +92,16 @@ class Event(models.Model):
                 if item.category.name == category_name:
                     if page_type == 'event':
                         item_view = item.render_event_view(membership=membership)
-                        category_list[1].append(item_view)
                     elif page_type == 'summary':
                         item_view = item.render_summary_view()
-                        category_list[1].append(item_view)
                         total_cases += item_view['total_cases']
                         grand_total += item_view['total']
                     elif page_type == 'breakdown':
-                        pass
+                        item_view = item.render_breakdown_view()
+                        item_view['casebuys'] = item.case_buys.all()
+                        item_view['casesplits'] = item.case_splits.filter(is_complete=True).all()
                     elif page_type == 'my_order':
                         item_view = item.render_my_order_view(membership=membership)
-                        category_list[1].append(item_view)
                         grand_total += item_view['your_total_price']
 
                 else:
@@ -111,18 +110,18 @@ class Event(models.Model):
                     category_list = [item.category.name, []]
                     if page_type == 'event':
                         item_view = item.render_event_view(membership=membership)
-                        category_list[1].append(item_view)
                     elif page_type == 'summary':
                         item_view = item.render_summary_view()
-                        category_list[1].append(item_view)
                         total_cases += item_view['total_cases']
                         grand_total += item_view['total']
                     elif page_type == 'breakdown':
-                        pass
+                        item_view = item.render_breakdown_view()
+                        item_view['casebuys'] = item.case_buys.all()
+                        item_view['casesplits'] = item.case_splits.filter(is_complete=True).all()
                     elif page_type == 'my_order':
                         item_view = item.render_my_order_view(membership=membership)
-                        category_list[1].append(item_view)
                         grand_total += item_view['your_total_price']
+                category_list[1].append(item_view)
 
             # Cleanup
             item_groups.append(category_list)
@@ -135,33 +134,51 @@ class Event(models.Model):
 
         # Extras at end of page
         if page_type == 'breakdown':
-            pass #todo manage user segment
+            page_data['member_totals'] = self.generate_user_totals_all()
+        elif page_type == 'my_order':
+            my_order_summary = self.generate_user_totals_all(target_membership=membership)
+            page_data['my_order_summary'] = my_order_summary
 
         return page_data
 
-    def generate_user_totals_all(self):
+    def generate_user_totals_all(self, target_membership=None):
         master_dict = {}
         membership_list = []
         grand_total = 0
-        for membership in EventMembership.objects.filter(event=self):
-            member_dict = {}
-            member_dict['username'] = membership.user.username
-            member_dict['user_id'] = membership.user.id
-            member_dict['id'] = membership.id
-            member_dict['has_paid'] = membership.has_paid
-            pre_total = membership.generate_my_total()
-            grand_total += pre_total
-            member_dict['pre_total'] = pre_total
-            membership_list.append(member_dict)
-        for member_dict in membership_list:
-            percentage_of_event = member_dict['pre_total'] / grand_total
-            member_dict['percentage_of_event'] = round(percentage_of_event, 2)
-            member_dict['share_of_fee'] = round((self.extra_charges * percentage_of_event), 2)
+        my_order_summary = {}
+        if target_membership:
+            for membership in EventMembership.objects.filter(event=self):
+                pre_total = membership.generate_my_total()
+                grand_total += pre_total
+            pre_total = target_membership.generate_my_total()
+            my_order_summary['pre_order'] = pre_total
+            percentage_of_event = pre_total / grand_total
+            my_order_summary['displayed_percentage'] = round(percentage_of_event * 100, 2)
+            my_order_summary['share_of_fee'] = round((self.extra_charges * percentage_of_event), 2)
+            my_order_summary['post_total'] = round((pre_total + my_order_summary['share_of_fee']), 2)
+            return my_order_summary
 
-            member_dict['post_total'] = round((member_dict['pre_total'] + member_dict['share_of_fee']), 2)
-        master_dict['membership_list'] = membership_list
-        master_dict['grand_total'] = grand_total
-        return master_dict
+        else:
+            for membership in EventMembership.objects.filter(event=self):
+                member_dict = {}
+                member_dict['username'] = membership.user.username
+                member_dict['user_id'] = membership.user.id
+                member_dict['id'] = membership.id
+                member_dict['has_paid'] = membership.has_paid
+                pre_total = membership.generate_my_total()
+                grand_total += pre_total
+                member_dict['pre_total'] = pre_total
+                membership_list.append(member_dict)
+            for member_dict in membership_list:
+                percentage_of_event = member_dict['pre_total'] / grand_total
+                member_dict['percentage_of_event'] = round(percentage_of_event, 2)
+                member_dict['displayed_percentage'] = round(percentage_of_event * 100, 2)
+                member_dict['share_of_fee'] = round((self.extra_charges * percentage_of_event), 2)
+                member_dict['post_total'] = round((member_dict['pre_total'] + member_dict['share_of_fee']), 2)
+
+            master_dict['membership_list'] = membership_list
+            master_dict['grand_total'] = grand_total
+            return master_dict
 
 
 class EventMembership(models.Model):
@@ -311,6 +328,9 @@ class CaseBuy(models.Model):
 
     def __str__(self):
         return f'{self.event.name} -> {self.user.username} -> {self.item.name}'
+
+    def return_casebuy_total(self):
+        return round(self.quantity * self.item.price, 2)
 
 
 class CaseSplit(models.Model):

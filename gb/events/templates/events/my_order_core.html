@@ -79,13 +79,13 @@
                             <tbody>
                             {% for commit in case_split.split_commits.all %}
                                 {% if commit.user == targetted_user and not is_pdf %}
-                                <tr class="table-primary">
-                                {% else %}
+                                    <tr class="table-primary">
+                                        {% else %}
                                     <tr>
                                 {% endif %}
-                                    <th scope="row">{{ commit.user.username }}</th>
-                                    <td>{{ commit.return_quantity_pledged_prettied }}</td>
-                                </tr>
+                            <th scope="row">{{ commit.user.username }}</th>
+                            <td>{{ commit.return_quantity_pledged_prettied }}</td>
+                            </tr>
                             {% endfor %}
                             </tbody>
                         </table>
@@ -94,27 +94,20 @@
             </div>
         </div>
     {% endfor %}
-
-    <div class="row justify-content-center">
-        <div class="col-5 text-center">
-            {% if is_pdf %}
-                <div class="card mt-5 mb-5">
-            {% else %}
-                <div class="card border-info mt-5 mb-5">
-            {% endif %}
-            <div class="card-header">
-                <h3>{{ targetted_user.username }}'s Total:</h3>
-            </div>
-            <div class="card-body">
-                <h3>Event Total: ${{ my_order_data.grand_total }}</h3>
-            </div>
-            </div>
-            {% else %}
-            <div class="alert alert-info text-center" role="alert">
-                {% if event.is_locked or event.is_closed %}
-                    There are not any reserved cases in this event.
-                {% else %}
-                    There are not yet any reserved cases from case buys or case splits.
-                {% endif %}
-            </div>
+    <div class="container mt-5 mb-5 text-center">
+        {% if event.extra_charges %}
+            <h2><small class="text-muted">Pre-Total: ${{ my_order_data.grand_total }}</small></h2>
+            <h2><small class="text-muted">Extra Charges Split (${{ event.extra_charges }}): ${{ my_order_data.my_order_summary.share_of_fee }}</small></h2>
+        {% endif %}
+        <h2><small class="text-muted">Size Of Your Order In Event: {{ my_order_data.my_order_summary.displayed_percentage }}%</small></h2>
+        <h2>{{ targetted_user.username }}'s Total: ${{ my_order_data.my_order_summary.post_total }}</h2>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center" role="alert">
+        {% if event.is_locked or event.is_closed %}
+            There are not any reserved cases in this event.
+        {% else %}
+            There are not yet any reserved cases from case buys or case splits.
+        {% endif %}
+    </div>
 {% endif %}
