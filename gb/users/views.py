@@ -71,3 +71,5 @@ def activate_account(request, pk):
         account.save()
         messages.success(request, 'Account activated!  You may now log in.')
         return redirect('login')
+
+#test
