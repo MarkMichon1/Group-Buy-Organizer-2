@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+from django.core.exceptions import ImproperlyConfigured
 
 import json
 import os
-from django.core.exceptions import ImproperlyConfigured
 
-from gb.secrets import get_secret
+# Load JSON Config Secrets
+from gb.secrets import config_dict
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -22,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # SECURITY
-SECRET_KEY = get_secret('SECRET_KEY')
+SECRET_KEY = config_dict['SECRET_KEY']
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'pyrogroupbuys.com', 'www.pyrogroupbuys.com']
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 # SECURE_SSL_REDIRECT = True
@@ -83,12 +84,12 @@ WSGI_APPLICATION = 'gb.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': get_secret('DB_ENGINE'),
-        'NAME': get_secret('DB_NAME'),
-        'USER': get_secret('DB_USER'),
-        'PASSWORD': get_secret('DB_PASSWORD'),
-        'HOST': get_secret('DB_HOST'),
-        'PORT': get_secret('DB_PORT')
+        'ENGINE': config_dict['DB_ENGINE'],
+        'NAME': config_dict['DB_NAME'],
+        'USER': config_dict['DB_USER'],
+        'PASSWORD': config_dict['DB_PASSWORD'],
+        'HOST': config_dict['DB_HOST'],
+        'PORT': config_dict['DB_PORT']
     }
 }
 
@@ -124,6 +125,7 @@ USE_TZ = True
 # Misc
 LOGOUT_REDIRECT_URL = 'general-home'
 LOGIN_REDIRECT_URL = 'general-home'
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -132,12 +134,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = config_dict['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = config_dict['EMAIL_HOST_PASSWORD']
 
 # Off Site Analytics
 GOOGLE_ANALYTICS = {
-    'google_analytics_id': get_secret('SECRET_KEY'),
+    'google_analytics_id': config_dict['SECRET_KEY'],
 }
 
 # Captcha
@@ -146,5 +148,5 @@ RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error'] #remove
 
 RECAPTCHA_REQUIRED_SCORE = 0.2
-# RECAPTCHA_PUBLIC_KEY = get_secret('RECAPTCHA_PUBLIC_KEY')
-# RECAPTCHA_PRIVATE_KEY = get_secret('RECAPTCHA_PRIVATE_KEY')
+# RECAPTCHA_PUBLIC_KEY = config_dict['RECAPTCHA_PUBLIC_KEY']
+# RECAPTCHA_PRIVATE_KEY = config_dict['RECAPTCHA_PRIVATE_KEY']

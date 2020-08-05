@@ -6,7 +6,7 @@ from requests.exceptions import Timeout
 import json
 
 from events.models import Event, EventMembership
-from gb.secrets import get_secret
+from gb.secrets import config_dict
 
 
 def event_auth_checkpoint(event_id, request, organizer=False, summary_or_breakdown=False, user_id=None):
@@ -41,7 +41,7 @@ def validate_and_categorize_youtube_link(url, request):
 
     # API call checking if embeddable
     try:
-        response = requests.get(f"https://www.googleapis.com/youtube/v3/videos?id={youtube_id}&key={get_secret('YOUTUBE_API_KEY')}&part=status", timeout=3)
+        response = requests.get(f"https://www.googleapis.com/youtube/v3/videos?id={youtube_id}&key={config_dict['YOUTUBE_API_KEY']}&part=status", timeout=3)
     except Timeout:
         messages.info(request, 'Internal connection failure to Youtube... if you see this problem, please let site staff know.')
         return False, False, False
