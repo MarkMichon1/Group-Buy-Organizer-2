@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'google_analytics',
     'mathfilters',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+
     'events',
     'general',
     'users'

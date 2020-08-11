@@ -72,4 +72,12 @@ def activate_account(request, pk):
         messages.success(request, 'Account activated!  You may now log in.')
         return redirect('login')
 
-#test
+
+@login_required
+def profile(request, targetted_user_name):
+    targetted_user = get_object_or_404(User, usernamee=targetted_user_name)
+    context = {
+        'title': f'Profile: {targetted_user.username}'
+    }
+
+    return render(request, 'users/profile.html', context=context)
