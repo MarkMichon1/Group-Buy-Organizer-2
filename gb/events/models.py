@@ -1,7 +1,6 @@
 from django.db import models
 
 from decimal import Decimal
-import uuid
 
 from users.models import User
 
@@ -209,7 +208,6 @@ class EventMembership(models.Model):
 
 
 class Item(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     added_by = models.ForeignKey(EventMembership, null=True, on_delete=models.SET_NULL, related_name='created_items')
     date_created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=100)

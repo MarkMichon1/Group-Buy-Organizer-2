@@ -47,7 +47,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'events',
+    'fireworks',
+    'forum',
     'general',
+    'groupbuys',
+    'knowledgebase',
+    'marketplace',
+    'personal_messages',
+    'storefinder',
     'users'
 ]
 

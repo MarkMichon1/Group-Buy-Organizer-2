@@ -11,6 +11,7 @@ from events.view_utilities import event_auth_checkpoint, validate_and_categorize
 from general.models import Instance
 from users.models import User
 
+
 @login_required
 def create_event(request):
     if request.method == 'POST':
@@ -22,7 +23,8 @@ def create_event(request):
             event.save()
             membership = EventMembership(user=request.user, event=event, is_organizer=True, is_creator=True)
             membership.save()
-            messages.success(request, f"Event successfully created!  Click your event Event Settings button in the organizer toolbar to add more members.")
+            messages.success(request, f"Event successfully created!  Click your event Event Settings button in the "
+                                      f"organizer toolbar to add more members.")
             return redirect('general-home')
     else:
         context = {
@@ -50,11 +52,11 @@ def event(request, event_id):
             return redirect('events-event', event_id=event.id)
     else:
         context = {
-            'event_data' : event_data,
-            'title' : event.name,
-            'event' : event,
+            'event_data': event_data,
+            'title': event.name,
+            'event': event,
             'form': ItemForm(),
-            'membership' : membership
+            'membership': membership
         }
         return render(request, 'events/event.html', context=context)
 
