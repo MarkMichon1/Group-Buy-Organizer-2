@@ -3,7 +3,7 @@
 {% block content %}
     {% load humanize %}
     {% if user.is_authenticated %}
-            <nav class="mb-5 mt-5">
+            <nav class="mt-5">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">Home</li>
         </ol>
@@ -39,7 +39,7 @@
                 </div>
             </div>
         {% endif %}
-        <div class="container text-center">
+        <div class="text-center">
             <a class="btn btn-info mb-5 mt-5" href="{% url 'events-create' %}" role="button">Create New Event</a>
         </div>
         {% if memberships %}

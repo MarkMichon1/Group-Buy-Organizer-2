@@ -6,4 +6,5 @@ def app_db_initialization():
                           'Single Shot Tubes', 'Skyrockets']
     for category in product_categories:
         new_category = Category(name=category)
-        new_category.save()
+        new_category.save() #todo remove
+

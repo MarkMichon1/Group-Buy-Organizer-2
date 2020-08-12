@@ -9,6 +9,8 @@ class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True)
     night_mode_enabled = models.BooleanField(default=False, blank=False)
     display_explanations = models.BooleanField(default=True)
+    firework_favorites_visible = models.BooleanField(default=False)
+    url_slug = None #to do
     # timezone = future feature
 
     def __str__(self):

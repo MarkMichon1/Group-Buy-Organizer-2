@@ -31,7 +31,7 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('login/', user_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('personal-messages/', include('personal_messages.urls')),
+    path('messages/', include('personal_messages.urls')),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='users/password_reset.html'),
          name='password_reset'),
     path('password-reset/done/',
@@ -42,5 +42,6 @@ urlpatterns = [
     path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='users/password_reset_complete.html'), name='password_reset_complete'),
     path('register/', user_views.register, name='register'),
+    path('staff/', include('staff.urls')),
     path('users/', include('users.urls')),
 ]

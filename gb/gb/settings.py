@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'knowledgebase',
     'marketplace',
     'personal_messages',
+    'staff',
     'storefinder',
     'users'
 ]
