@@ -1,3 +1,7 @@
+**UPDATE:  A few version of this is now being worked on!**  After the [first](https://github.com/MarkMichon1/Group-Buy-Organizer) and [second](https://github.com/MarkMichon1/Group-Buy-Organizer-2) version, I've now begun on v3, in which the group buy software will be part of a larger single page application, PyroSource.  More news will be released as the project progresses.  :)
+ 
+ **[Repository Link](https://github.com/MarkMichon1/Group-Buy-Organizer)**
+
 # Fireworks Group Buy Organizer
 
 ### Organize Group Buys Faster
