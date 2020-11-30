@@ -25,7 +25,7 @@ for, only then it gets locked into the order.
 a customized list showing the cases and items you've ordered, its subtotal as well as the event total.  The event 
 summary view is a concise list for the organizer of how many cases to order.  The user breakdown view steps through one
 item at a time, showing all of the users who bought cases of it, as well as all of the case splits for that item.
-+ **Tracking payments from attendees:** For the even
++ **Tracking payments from attendees:** For the event, keep track of who has paid and who hasn't.
 + **Chat features:**  Talk with everyone in the group both for the event itself, and on specific item pages.
 + **Share videos of the items:**  Post videos from your favorite items, and let everyone else see them as well.  Calls Youtube API to check if they are embeddable, and if so they become embedded.
 + **Export to PDF:** All order pages include a button to export the list as a PDF to be downloaded.  Pages are stripped 
